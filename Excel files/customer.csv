@@ -1,0 +1,13 @@
+﻿username,user_password,user_type,Reference_Id
+john_doe,password123,Student,1
+jane_smith,password456,Faculty,2
+susan_jones,password789,Student,3
+robert_brown,password101,Faculty,4
+alice_davis,password102,Student,5
+michael_miller,password103,Faculty,6
+julia_wilson,password104,Student,7
+richard_moore,password105,Faculty,8
+diana_taylor,password106,Student,9
+chris_anderson,password107,Faculty,10
+,,,
+,,,
