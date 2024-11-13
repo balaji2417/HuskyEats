@@ -1,0 +1,49 @@
+﻿Category_id,store_id,Food_name
+1,1,Cheeseburger
+2,1,Caesar Salad
+1,1,Chicken Sandwich
+1,1,Vegetarian Pizza
+5,2,Turkey Sandwich
+3,2,Fruit Smoothie
+2,2,Veggie Wrap
+8,3,Chicken Curry
+8,3,Butter Chicken
+8,3,Vegetable Biryani
+8,3,Naan Bread
+3,4,Cappuccino
+3,4,Latte
+4,4,Blueberry Muffin
+4,4,Croissant
+2,6,Veggie Wrap
+2,6,Fruit Cup
+2,6,Yogurt Parfait
+4,7,Glazed Donut
+3,7,Coffee
+4,7,Bagel with Cream Cheese
+5,8,Tuna Salad Sandwich
+5,8,Grilled Cheese
+5,8,Tomato Soup
+1,9,Pepperoni Pizza
+1,9,Margherita Pizza
+7,9,Garlic Breadsticks
+2,9,Caesar Salad
+1,10,Chicken Sandwich
+7,10,French Fries
+3,10,Chocolate Milkshake
+2,11,Greek Salad
+8,11,Hummus Plate
+8,11,Falafel Wrap
+2,12,Vegetable Soup
+5,12,Grilled Panini
+3,12,Iced Tea
+8,13,Beef Shawarma
+8,13,Chicken Shawarma
+8,13,Falafel Plate
+7,13,Baklava
+6,14,Grilled Chicken Plate
+6,14,Vegetarian Pasta
+2,14,Cobb Salad
+5,15,Meatball Sub
+5,15,Turkey Breast Sub
+2,15,Veggie Delite Sub
+7,15,Chocolate Chip Cookie

@@ -1,0 +1,42 @@
+﻿Category_id,store_id,item_name
+9,5,Milk
+10,5,Bread
+9,5,Eggs
+13,5,Bananas
+13,6,Apples
+14,5,Peanut Butter
+14,5,Pasta
+11,23,Coffee Beans
+11,23,Bottled Water
+10,23,Packaged Sandwiches
+10,23,Muffins
+11,23,Iced Tea
+12,24,Chips
+11,24,Soda
+11,24,Bottled Water
+11,24,Energy Drinks
+15,24,Protein Bars
+14,24,Instant Noodles
+14,24,Cereal
+12,24,Granola Bars
+12,24,Chocolate Bars
+12,24,Gum
+12,24,Nuts Mix
+13,14,Fresh Fruit Cups
+9,25,Yogurt
+13,25,Salad Kits
+15,25,Protein Shakes
+13,25,Veggie Sticks
+14,25,Hummus
+12,18,Energy Bars
+12,18,Trail Mix
+13,18,Dried Fruits
+14,19,Cereal
+14,4,Oatmeal Packets
+15,19,Protein Powder
+15,29,Protein Shakes
+12,29,Protein Cookies
+15,29,Beef Jerky
+11,31,Energy Drinks
+12,31,Popcorn
+11,31,Pepsi

@@ -1,0 +1,16 @@
+﻿NUID,First_Name,Last_Name,DOB,Email_Address,Street_name,City,Zipcode,username
+1001,John,Doe,2000-05-15,john.doe@northeastern.edu,123 Main St,Boston,2115,john_doe
+1002,Mike,Johnson,2001-08-22,mike.johnson@northeastern.edu,456 Elm St,Boston,2116,mike_johnson
+1003,David,Wilson,1999-03-10,david.wilson@northeastern.edu,789 Oak St,Boston,2117,david_wilson
+1004,Sarah,Lee,2002-11-30,sarah.lee@northeastern.edu,101 Pine St,Boston,2118,sarah_lee
+1005,Lisa,Anderson,2000-07-18,lisa.anderson@northeastern.edu,202 Maple St,Boston,2119,lisa_anderson
+1006,James,Martin,2001-02-25,james.martin@northeastern.edu,303 Cedar St,Boston,2120,james_martin
+1007,William,Clark,1999-09-05,william.clark@northeastern.edu,404 Birch St,Boston,2121,william_clark
+1008,Olivia,Harris,2002-12-12,olivia.harris@northeastern.edu,505 Walnut St,Boston,2122,olivia_harris
+1009,Sophia,Walker,2000-06-20,sophia.walker@northeastern.edu,606 Cherry St,Boston,2123,sophia_walker
+1010,Michael,Hall,2001-04-03,michael.hall@northeastern.edu,707 Spruce St,Boston,2124,michael_hall
+1011,Emma,Young,1999-10-08,emma.young@northeastern.edu,808 Ash St,Boston,2125,emma_young
+1012,Noah,King,2002-01-15,noah.king@northeastern.edu,909 Beech St,Boston,2126,noah_king
+1013,Ava,Wright,2000-07-22,ava.wright@northeastern.edu,1010 Willow St,Boston,2127,ava_wright
+1014,Liam,Scott,2001-11-11,liam.scott@northeastern.edu,1111 Poplar St,Boston,2128,liam_scott
+1015,Mia,Green,1999-03-28,mia.green@northeastern.edu,1212 Sycamore St,Boston,2129,mia_green

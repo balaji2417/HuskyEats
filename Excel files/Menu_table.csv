@@ -1,0 +1,49 @@
+﻿store_id,Food_name,Food_cuisine,Price,Availability
+1,Cheeseburger,American,8.99,Yes
+1,Caesar Salad,Italian,7.5,Yes
+1,Chicken Sandwich,American,7.99,Yes
+1,Vegetarian Pizza,Italian,10.99,Yes
+2,Turkey Sandwich,American,6.99,Yes
+2,Fruit Smoothie,Health,4.5,Yes
+2,Veggie Wrap,Vegetarian,6.99,Yes
+3,Chicken Curry,Indian,10.99,Yes
+3,Butter Chicken,Indian,11.99,Yes
+3,Vegetable Biryani,Indian,9.99,Yes
+3,Naan Bread,Indian,2.99,Yes
+4,Cappuccino,Italian,3.5,Yes
+4,Latte,Italian,3.75,Yes
+4,Blueberry Muffin,American,2.99,Yes
+4,Croissant,French,2.5,Yes
+6,Veggie Wrap,Vegetarian,6.99,Yes
+6,Fruit Cup,Health,3.99,Yes
+6,Yogurt Parfait,Health,4.5,Yes
+7,Glazed Donut,American,1.99,Yes
+7,Coffee,American,2.5,Yes
+7,Bagel with Cream Cheese,American,3.99,Yes
+8,Tuna Salad Sandwich,American,7.99,Yes
+8,Grilled Cheese,American,5.99,Yes
+8,Tomato Soup,American,4.99,Yes
+9,Pepperoni Pizza,Italian,12.99,Yes
+9,Margherita Pizza,Italian,11.99,Yes
+9,Garlic Breadsticks,Italian,4.99,Yes
+9,Caesar Salad,Italian,7.5,Yes
+10,Chicken Sandwich,American,7.99,Yes
+10,French Fries,American,3.99,Yes
+10,Chocolate Milkshake,American,4.99,Yes
+11,Greek Salad,Greek,8.5,Yes
+11,Hummus Plate,Middle Eastern,6.99,Yes
+11,Falafel Wrap,Middle Eastern,7.99,Yes
+12,Vegetable Soup,International,5.99,Yes
+12,Grilled Panini,Italian,8.99,Yes
+12,Iced Tea,American,2.5,Yes
+13,Beef Shawarma,Middle Eastern,9.99,Yes
+13,Chicken Shawarma,Middle Eastern,9.99,Yes
+13,Falafel Plate,Middle Eastern,8.99,Yes
+13,Baklava,Middle Eastern,3.99,Yes
+14,Grilled Chicken Plate,American,11.99,Yes
+14,Vegetarian Pasta,Italian,10.99,Yes
+14,Cobb Salad,American,9.99,Yes
+15,Meatball Sub,Italian,8.99,Yes
+15,Turkey Breast Sub,American,7.99,Yes
+15,Veggie Delite Sub,Vegetarian,6.99,Yes
+15,Chocolate Chip Cookie,American,1.5,Yes

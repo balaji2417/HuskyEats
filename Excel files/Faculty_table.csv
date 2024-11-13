@@ -1,0 +1,11 @@
+﻿Faculty_ID,First_name,Last_name,DOB,Email,Gender,College_Name,username
+2001,Jane,Smith,1980-05-15,jane.smith@northeastern.edu,Female,College of Engineering,jane_smith
+2002,Emily,Brown,1975-08-22,emily.brown@northeastern.edu,Female,College of Arts and  Science,emily_brown
+2003,Robert,Taylor,1982-03-10,robert.taylor@northeastern.edu,Male,College of Professional Studies,robert_taylor
+2004,Jennifer,White,1978-11-30,jennifer.white@northeastern.edu,Female,College of Business,jennifer_white
+2005,Daniel,Lewis,1985-07-18,daniel.lewis@northeastern.edu,Male,Khoury college of Computer Sciences,daniel_lewis
+2006,Kathleen,Durant,1970-02-21,kathleen.durant@northeastern.edu,Female,College of Engineering,Kathleen_Durant
+2007,Jeff,bezos,1980-05-14,jeff.bezos@northeastern.edu,Male,School of Law,jeff_bezos
+2008,Dua,lipa,1990-06-18,dua.lipa@northeastern.edu,Female,College of Business,dua_lipa
+2009,Yang ,Hu,1978-05-16,yang.hu@northeastern.edu,Male,Khoury college of Computer Sciences,yang_hu
+2010,Daniel,Clarison,1985-07-02,daniel.clarison@northeastern.edu,Male,College of Arts and  Science,Daniel_clarison

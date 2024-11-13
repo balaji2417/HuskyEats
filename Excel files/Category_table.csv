@@ -1,0 +1,16 @@
+﻿Category_id,Category_name,Category_Belonging
+1,Fast Food,Menu
+2,Healthy Options,Menu
+3,Beverages,Menu
+4,Breakfast,Menu
+5,Lunch,Menu
+6,Dinner,Menu
+7,Snacks,Menu
+8,International,Menu
+9,Dairy,Grocery
+10,Bakery,Grocery
+11,Drinks,Grocery
+12,Snacks,Grocery
+13,Produce,Grocery
+14,Pantry,Grocery
+15,Protein,Grocery

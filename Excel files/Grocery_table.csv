@@ -1,0 +1,42 @@
+﻿store_id,item_name,item_price,item_qty
+5,Milk,3.99,50
+5,Bread,2.99,30
+5,Eggs,4.5,40
+5,Bananas,0.99,100
+6,Apples,1.29,80
+5,Peanut Butter,3.99,25
+5,Pasta,2.49,45
+23,Coffee Beans,9.99,20
+23,Bottled Water,1.5,100
+23,Packaged Sandwiches,5.99,25
+23,Muffins,2.99,30
+23,Iced Tea,2.99,40
+24,Chips,2.99,60
+24,Soda,1.99,80
+24,Bottled Water,1.5,100
+24,Energy Drinks,2.99,50
+24,Protein Bars,2.5,60
+24,Instant Noodles,0.99,100
+24,Cereal,3.99,25
+24,Granola Bars,3.99,40
+24,Chocolate Bars,1.99,70
+24,Gum,1.5,80
+24,Nuts Mix,4.99,30
+14,Fresh Fruit Cups,3.99,30
+25,Yogurt,1.99,40
+25,Salad Kits,4.99,20
+25,Protein Shakes,3.5,35
+25,Veggie Sticks,2.99,25
+25,Hummus,3.99,20
+18,Energy Bars,2.5,60
+18,Trail Mix,3.99,40
+18,Dried Fruits,4.5,30
+19,Cereal,3.99,25
+4,Oatmeal Packets,3.5,35
+19,Protein Powder,19.99,15
+29,Protein Shakes,3.5,35
+29,Protein Cookies,2.99,40
+29,Beef Jerky,5.99,25
+31,Energy Drinks,2.99,50
+31,Popcorn,2.5,45
+31,Pepsi,2.99,40
