@@ -12,7 +12,8 @@
       height: 100%;
       margin: 0;
       padding: 0;
-      background-color: white; /* Set the background color of the page */
+      background: url("{{ url_for('static', filename='D:\HuskyEats\Web_Files\static\bg.jpg') }}") no-repeat center center fixed;
+      background-size: cover; /* Set the background color of the page */
     }
 
     /* Image Styling */
@@ -44,18 +45,20 @@
       justify-content: center; 
       align-items: center; 
       height: 100vh; /* Make the form take up full screen height */
-      background-color: white; /* White background */
+      background: url("{{ url_for('static', filename='bg.jpg') }}") no-repeat center center;
+      background-size: cover;
     }
 
     /* Sign-up form section */
     #signup_in {
-      background: white; 
+      background: black; 
       border-radius: 10px; 
       padding: 40px 30px;
       box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
       text-align: center;
       width: 100%;
-      max-width: 400px; /* Set max width for form */
+      max-width: 400px;
+      color: white; /* Set max width for form */
     }
 
     /* Heading inside Signup Box */
@@ -110,7 +113,7 @@
 <body>
 
   <!-- Top Bar with Navigation -->
-  <div class="container-fluid" id="top-bar">
+  <div class="container-fluid" id="top-bar" >
     <div class="row">
       <div class="col-sm text-center">
         <img src="{{ url_for('static', filename='husky.png') }}" alt="Husky Logo">
@@ -128,7 +131,7 @@
   <div id="signup">
     <div id="signup_in">
       <img src="{{ url_for('static', filename='northeastern.jpg') }}" class="login-logo" alt="Northeastern Logo">
-      <h2>Create an Account</h2>
+      <h2 >Create an Account</h2>
 
       <!-- Sign Up Form -->
       <form action="/register" method="POST">
@@ -138,19 +141,18 @@
 
         <!-- User Type Section -->
         <div class="user-type">
-          <label>User type:</label>
-          <input type="checkbox" id="student" name="userType" value="student" required>
-          <label for="student">Student</label>
-
-          <input type="checkbox" id="faculty" name="userType" value="faculty" required>
-          <label for="faculty">Faculty</label>
-        </div>
+            <label>User type:</label>
+            <input type="radio" id="student" name="userType" value="student" required>
+            <label for="student">Student</label>
+            <input type="radio" id="faculty" name="userType" value="faculty" required>
+            <label for="faculty">Faculty</label>
+          </div>
 
         <button type="submit" class="btn btn-signup">Sign Up</button>
       </form>
 
       <div class="nav-links">
-        <p>Already have an account? <a href="{{ url_for('login_home') }}">Login here</a></p>
+        <p >Already have an account? <a href="{{ url_for('login_home') }}">Login here</a></p>
       </div>
     </div>
   </div>
