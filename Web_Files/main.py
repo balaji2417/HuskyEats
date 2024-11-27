@@ -1,6 +1,6 @@
 import mysql.connector
 from flask import Flask, render_template, redirect, url_for, request
-
+from datetime import datetime
 # Flask constructor takes the name of
 # current module (__name__) as argument.
 app = Flask(__name__)
@@ -39,11 +39,11 @@ def valid_login():
         password = request.form['password']
 
         cursor = conn.cursor()
-        query = "SELECT username FROM customer WHERE username = %s AND user_password = %s"
+        query = "SELECT username, FROM customer WHERE username = %s AND user_password = %s"
         cursor.execute(query, (username, password))
         rows = cursor.fetchall()
         if (len(rows) > 0):
-            return render_template("login.html")
+            return render_template("home_user.html", message="Good Morning Balaji")
         else:
             return render_template('login.html', error="Invalid credentials. Please try again.")
 
@@ -53,7 +53,12 @@ def delivery_agent_login():
     return render_template('delivery_agent.html')
 
 
-@app.route('/valid_delivery',methods=['GET', 'POST'])
+@app.route('/signup')
+def signup():
+    return render_template('signup.html')
+
+
+@app.route('/valid_delivery', methods=['GET', 'POST'])
 def valid_delivery():
     username = ""
     password = ""
