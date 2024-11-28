@@ -39,7 +39,7 @@ def valid_login():
         password = request.form['password']
 
         cursor = conn.cursor()
-        query = "SELECT username, FROM customer WHERE username = %s AND user_password = %s"
+        query = "SELECT username FROM customer WHERE username = %s AND user_password = %s"
         cursor.execute(query, (username, password))
         rows = cursor.fetchall()
         if (len(rows) > 0):
