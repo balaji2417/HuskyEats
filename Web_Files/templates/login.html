@@ -31,20 +31,24 @@
 
     /* Login Section */
     #login {
-      display: flex; 
+         display: flex; 
       justify-content: center; 
       align-items: center; 
-      height: 100vh; 
-      background-color: #f4f4f4; 
+      height: 100vh; /* Make the form take up full screen height */
+      background: url("{{ url_for('static', filename='bg.jpg') }}") no-repeat center center;
+      background-size: cover;
     }
 
    
     #login_in {
-      background: white; 
+      background: black; 
       border-radius: 10px; 
       padding: 40px 30px;
       box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
       text-align: center;
+      width: 100%;
+      max-width: 400px;
+      color: white; /* Set max width for form */
     }
 
     /* Heading inside Login Box */
@@ -108,7 +112,7 @@
     <div id="login_in">
  <ul class="nav nav-underline">
   <li class="nav-item">
-    <a class="nav-link active" aria-current="page" href="#">User</a>
+    <a style = "color:white" class="nav-link active" aria-current="page" href="#">User</a>
   </li>
   <li class="nav-item">
  <a class="nav-link" href="{{ url_for('delivery_agent_login') }}">Delivery</a>
