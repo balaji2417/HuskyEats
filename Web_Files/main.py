@@ -43,7 +43,7 @@ def valid_login():
         cursor.execute(query, (username, password))
         rows = cursor.fetchall()
         if (len(rows) > 0):
-            return render_template("home_user.html", message="Good Morning Balaji")
+            return render_template("new_page.html", message="Good Morning Balaji")
         else:
             return render_template('login.html', error="Invalid credentials. Please try again.")
 
