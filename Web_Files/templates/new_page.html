@@ -179,17 +179,26 @@
   <div class="container-fluid" id="top-bar">
     <div class="row">
       <div class="col-sm text-center">
-        <img src="static/husky.png" alt="Husky Logo">
+        <img src="{{ url_for('static', filename='husky.png') }}" alt="Husky Logo">
       </div>
       <div class="col-sm text-center">
         <h1 class="Name">Husky Eats</h1>
       </div>
       <div class="col-sm">
+<div class="dropdown show">
+  <a style = "background-color:black; color:white; margin-top:5px; margin-left:200px;" class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    {{ message }}
+  </a>
 
-        <!-- Optional additional content -->
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+    <a class="dropdown-item" href="#">Cart</a>
+    <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+   
+  </div>
+</div>
+</div>
       </div>
     </div>
-  </div>
 
   <div class="explore">
     <h2> Order Your Favorites, Now !!! </h2>

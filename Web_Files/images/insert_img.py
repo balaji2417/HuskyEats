@@ -1,6 +1,5 @@
 import mysql.connector
 
-
 connection = mysql.connector.connect(
     host="localhost",
     user="root",
@@ -8,31 +7,20 @@ connection = mysql.connector.connect(
     database="husky_eats"
 )
 
-
 cursor = connection.cursor(buffered=True)
+
+
 def convert_to_binary(filename):
     with open(filename, 'rb') as file:
         return file.read()
+
+
 try:
-    image_path = "img1.jpg"
+    image_path = "E:/CS5200-DBMS/HuskyEats/Web_Files/menu_images/menu_images/1/caesar_salad.jpg"
     binary_data = convert_to_binary(image_path)
-    sql = "UPDATE MENU SET IMAGE_FOOD = %s WHERE store_id = %s"
-    for i in range(1, 16):
-        if i == 5:
-            continue
-        cursor.execute(sql, (binary_data, i))
-
-    # Fetch image data
-    sql1 = "SELECT image_food FROM MENU WHERE store_id = %s"
-    cursor.execute(sql1, (1,))
-    result = cursor.fetchone()
-
-    if result and result[0]:
-        with open("output_image.jpg", 'wb') as file:
-            file.write(result[0])
-        print("Image retrieved and saved as 'output_image.jpg'")
-    else:
-        print("No image found for store_id = 1")
+    sql = "UPDATE MENU SET FOOD_IMAGE = %s WHERE store_id = %s and food_name = %s"
+    cursor.execute(sql, (binary_data, 1, "Caesar Salad"))
+    connection.commit()
 
 except mysql.connector.Error as err:
     print(f"MySQL Error: {err}")

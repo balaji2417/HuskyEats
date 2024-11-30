@@ -1,25 +1,14 @@
-import mysql.connector
-from flask import Flask, render_template, redirect, url_for, request
+
+from flask import Flask, render_template, redirect, url_for, request, flash, session
+import sql_queries as sq
 from datetime import datetime
-# Flask constructor takes the name of
-# current module (__name__) as argument.
+import re
 app = Flask(__name__)
-conn = mysql.connector.connect(
-    host="localhost",  # Change to your host, e.g., "127.0.0.1" or "your_host"
-    user="root",  # Replace with your MySQL username
-    password="Sqlafrah@123",  # Replace with your MySQL password
-    database="husky_eats"  # Replace with the database name
-)
-if conn.is_connected():
-    print("Connection to MySQL database established successfully.")
 
 
-def check_delivery(username, password):
-    cursor = conn.cursor()
-    query = "SELECT username FROM customer WHERE username = %s AND user_password = %s"
-    cursor.execute(query, (username, password))
-    rows = cursor.fetchall()
-    return len(rows) > 0
+
+app.config['SECRET_KEY'] = 'husky_eats'
+
 
 
 @app.route('/')
@@ -38,12 +27,21 @@ def valid_login():
         username = request.form['username']
         password = request.form['password']
 
-        cursor = conn.cursor()
-        query = "SELECT username FROM customer WHERE username = %s AND user_password = %s"
-        cursor.execute(query, (username, password))
-        rows = cursor.fetchall()
-        if (len(rows) > 0):
-            return render_template("new_page.html", message="Good Morning Balaji")
+
+
+        isexist = sq.check_valid_user(username, password)
+        current_time = datetime.now()
+        hour = current_time.hour
+        if (hour > 0 and hour < 12):
+            message = "Good Morning Balaji"
+        if (hour >= 12 and hour < 16):
+            message = "Good Afternoon Balaji"
+        if (hour >= 16 and hour < 23):
+            message = "Good Evening Balaji"
+        if (isexist):
+            #images = sq.get_images()
+            return render_template("new_page.html", message=message)
+
         else:
             return render_template('login.html', error="Invalid credentials. Please try again.")
 
@@ -53,9 +51,34 @@ def delivery_agent_login():
     return render_template('delivery_agent.html')
 
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    return render_template('login.html')
+
+
 @app.route('/signup')
 def signup():
     return render_template('signup.html')
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def signup_user():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        refId = int(request.form['Id'])
+        regexp_un = "[A-Z]*[a-z]+[0-9]*_*"
+        regexp_pw = "[A-Z]+[a-z]+[0-9]*_*"
+        if not (re.search(regexp_un, username)) or len(username) <8 or len(username) >15 or  len(password) >15 or not (re.search(regexp_pw, password)) or len(username) < 8:
+            return render_template('signup.html', error="Incorrect Username and password combination")
+        selected_value = request.form.get('userType')
+        bool_check, message = sq.checkValidEntry(username, password, refId, selected_value)
+        if (bool_check):
+            flash("User Created successfully", "success")
+            return render_template('login.html')
+        else:
+            return render_template('signup.html', error=message)
 
 
 @app.route('/valid_delivery', methods=['GET', 'POST'])
@@ -65,9 +88,10 @@ def valid_delivery():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-    isexist = check_delivery(username, password)
+
+    isexist = sq.check_delivery(username, password)
     if isexist:
-        return render_template('delivery_agent.html')
+        return "Hello"
     else:
         return render_template('delivery_agent.html', error="Invalid credentials. Please try again.")
 
