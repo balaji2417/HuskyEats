@@ -122,3 +122,14 @@ def checkValidEntry(username, password, id, selected_value):
                 flag = False
             conn.commit()
             return flag, message
+
+def getCategory():
+    cursor = conn.cursor()
+    cursor.callproc('get_category')
+    for results in cursor.stored_results():
+        rows = results.fetchall()
+        category = []
+        for row in rows:
+            category.append(row[0])
+    return category
+

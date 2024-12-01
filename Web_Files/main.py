@@ -4,7 +4,7 @@ import sql_queries as sq
 from datetime import datetime
 import re
 app = Flask(__name__)
-
+global_message = ""
 
 
 app.config['SECRET_KEY'] = 'husky_eats'
@@ -41,7 +41,8 @@ def valid_login():
               message = "Good Afternoon"+" "+user_name
             if (hour >= 16 and hour < 23):
               message = "Good Evening"+" "+user_name
-            return render_template("new_page.html", message=message,categories = categories)
+            global_message = message
+            return render_template("new_page.html", message=global_message,categories = categories)
 
         else:
             return render_template('login.html', error="Invalid credentials. Please try again.")
@@ -62,6 +63,10 @@ def logout():
 def signup():
     return render_template('signup.html')
 
+@app.route('/categoryroute')
+def category_page(category_name):
+    sq.getCategory()
+    return render_template('new_user.html',message = global_message,categories = category)
 
 @app.route('/register', methods=['GET', 'POST'])
 def signup_user():
