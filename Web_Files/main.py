@@ -29,18 +29,19 @@ def valid_login():
 
 
 
-        isexist = sq.check_valid_user(username, password)
-        current_time = datetime.now()
-        hour = current_time.hour
-        if (hour > 0 and hour < 12):
-            message = "Good Morning Balaji"
-        if (hour >= 12 and hour < 16):
-            message = "Good Afternoon Balaji"
-        if (hour >= 16 and hour < 23):
-            message = "Good Evening Balaji"
+        isexist,user_name,categories = sq.check_valid_user(username, password)
+
         if (isexist):
             #images = sq.get_images()
-            return render_template("new_page.html", message=message)
+            current_time = datetime.now()
+            hour = current_time.hour
+            if (hour > 0 and hour < 12):
+             message = "Good Morning"+" "+user_name
+            if (hour >= 12 and hour < 16):
+              message = "Good Afternoon"+" "+user_name
+            if (hour >= 16 and hour < 23):
+              message = "Good Evening"+" "+user_name
+            return render_template("new_page.html", message=message,categories = categories)
 
         else:
             return render_template('login.html', error="Invalid credentials. Please try again.")

@@ -47,15 +47,29 @@ def check_delivery(username, password):
 
 def check_valid_user(username, password):
     cursor = conn.cursor()
-    query = "SELECT user_password FROM customer WHERE username = %s"
+    query = "SELECT user_password,user_type FROM customer WHERE username = %s"
     cursor.execute(query, (username,))
     rows = cursor.fetchall()
     flag = False
+    type = ""
     for row in rows:
         if row[0] == password:
             flag = True
+            type = row[1]
+    cursor.execute("SELECT get_name(%s,%s)", (username, type))
+    rows = cursor.fetchall()
+    user_full_name = ""
+    for row in rows:
+        user_full_name = row[0]
+    cursor.callproc('get_category')
 
-    return flag
+    category = []
+    for result in cursor.stored_results():
+        rows = result.fetchall()
+        for row in rows:
+            category.append(row[0])
+
+    return flag, user_full_name, category
 
 
 def checkValidEntry(username, password, id, selected_value):
@@ -72,15 +86,16 @@ def checkValidEntry(username, password, id, selected_value):
             try:
                 cursor.callproc('CustomerSignup', [username, password, selected_value, id])
                 query = "UPDATE STUDENT SET username = %s where NUID = %s"
-                cursor.execute(query,(username,id))
+                cursor.execute(query, (username, id))
                 flag = True
+
 
             except Error as e:
                 print(e)
                 message = str(e.msg)
                 flag = False
             conn.commit()
-            return flag,message
+            return flag, message
 
 
 
@@ -99,11 +114,11 @@ def checkValidEntry(username, password, id, selected_value):
                 cursor.callproc('CustomerSignup', [username, password, selected_value, id])
                 flag = True
                 query = "UPDATE NEU_EMPLOYEE SET username = %s where faculty_id = %s"
-                cursor.execute(query,(username,id))
+                cursor.execute(query, (username, id))
 
             except Error as e:
                 print(e)
                 message = str(e.msg)
                 flag = False
             conn.commit()
-            return flag,message
+            return flag, message
