@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Page</title>
+<!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+ <link rel="icon" href="logo.jpg" type="image/jpg">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+ <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <style>
+
+     /* Styling for the h2 element */
+     .explore {
+      text-align: center; /* Centers the text */
+      font-weight: bold; /* Makes the text bold */
+      font-family:Georgia, 'Times New Roman', Times, serif; /* Uses a stylish font */
+      font-size: 32px; /* Adjust font size */
+      color: #333; /* Darker text color */
+      margin-top: 20px; /* Adds some space above the heading */
+      letter-spacing: 2px; /* Slight spacing between letters */
+    }
+
+
+
+    /* Image Styling */
+    img {
+      border-radius: 50%; /* Circular effect */
+      max-width: 100px; /* Adjust image size */
+      max-height: 100px;
+    }
+
+    /* Top Bar Styling */
+    #top-bar {
+      background-color: black;
+      font-family: 'Inter', sans-serif;
+      padding: 15px 0;
+      color: white;
+    }
+
+    /* Title Styling */
+    .Name {
+      font-size: 36px; 
+      font-weight: 700; 
+      letter-spacing: 3px;
+      text-align: center;
+    }
+
+    /* Background Styling */
+    body {
+      height: 100vh;
+      /*background: url("static/Homepage.jpg") no-repeat center center;*/
+      background-color:floralwhite;
+      background-size: cover;
+    }
+
+    .navbar {
+      background-color: #fff7e6;
+      margin-top: 25px; /* Space below the tagline */
+      padding: 10px 0;
+    }
+
+    .navbar-nav {
+      gap: 20px; /* Spacing between menu items */
+    }
+
+    .nav-link {
+      color: #333;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      background-color: #ffcc80;
+      color: #333;
+    }
+
+    .dropdown-menu {
+      border-radius: 8px;
+    }
+
+    .side {
+     text-align: left; /* Centers the text */
+      font-weight: bold; /* Makes the text bold */
+      font-family:Georgia, 'Times New Roman', Times, serif; /* Uses a stylish font */
+      font-size: 32px; /* Adjust font size */
+      color: #333; /* Darker text color */
+      margin-top: 20px; /* Adds some space above the heading */
+      letter-spacing: 2px;
+      padding-left: 10px;
+
+}
+
+
+.food-card .cart-btn {
+      background-color: #ffa500;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .food-card .order-btn:hover {
+      background-color: #ff8c00;
+    }
+
+    .food-card {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .food-card img {
+  max-width: 100%;
+  height: 280px; /* Adjust the height */
+  width: 280px; /* Adjust the width */
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+    .food-card h4 {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .food-card p {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .food-card .price {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .quantity-selector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .quantity-btn {
+      background-color: #ffa500;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .quantity-btn:hover {
+      background-color: #ff8c00;
+    }
+
+    .quantity {
+      font-size: 16px;
+      font-weight: bold;
+      margin: 0 10px;
+    }
+
+carousel-item {
+      text-align: center;
+	   
+    }
+  .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+      background-color: black;  /* Ensure visibility */
+      padding: 10px;  /* Increase the size of the buttons */
+    }
+
+
+
+</style>
+</head>
+<body>
+  <div class="container-fluid" id="top-bar">
+    <div class="row">
+      <div class="col-sm text-center">
+        <img src="{{ url_for('static', filename='husky.png') }}" alt="Husky Logo">
+      </div>
+      <div class="col-sm text-center">
+        <h1 class="Name">Husky Eats</h1>
+      </div>
+      <div class="col-sm">
+<div class="dropdown show">
+  <a style = "background-color:black; color:white; margin-top:5px; margin-left:200px;" class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    {{ message }}
+  </a>
+
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+    <a class="dropdown-item" href="#">Cart</a>
+    <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+   
+  </div>
+</div>
+</div>
+      </div>
+    </div>
+
+  <div class="explore">
+    <h2> Order Your Favorites, Now !!! </h2>
+</div>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <ul class="navbar-nav mx-auto d-flex">
+       <li class="nav-item">
+            <a class="nav-link " href="{{url_for('home_display')}}">
+			<img src="{{ url_for('static', filename='home_logo.jpg') }}" alt="Food Icon" style="width:20px; height:20px; margin-right:10px;">
+			Home
+			</a>
+          </li>
+        <!-- Menu Categories -->
+        <li class="nav-item">
+		 {% for category in categories %}
+         <a class="nav-link {% if category == request.view_args['category_name'] %}active{% endif %}" href="{{ url_for('category_grocery_page', category_name=category) }}">{{category}}</a>
+        </li>
+      {% endfor %}
+        
+      
+      </ul>
+    </div>
+  </nav>
+
+  <div class="side">
+    <h2> Popular Dishes </h2>
+  </div>
+
+
+
+<div class="container my-5">
+  <div class="row">
+    <div class="col-md-12">
+      <div id="imageCarousel" class="carousel slide" data-ride="carousel">
+        
+        <!-- Carousel Indicators (Optional, for navigation dots) -->
+        <ol class="carousel-indicators">
+          {% set zipped_data_list = zipped_data|list %}  <!-- Convert zipped_data to a list -->
+          {% for loop_index in range(0, zipped_data_list|length) %}
+            <li data-target="#imageCarousel" data-slide-to="{{ loop_index }}" class="{% if loop_index == 0 %}active{% endif %}"></li>
+          {% endfor %}
+        </ol>
+        
+        <!-- Carousel Inner: Loop through items and wrap each in 'carousel-item' -->
+        
+          
+		  <div class="carousel-inner">
+		  {% for store, item, price, image, store_id in zipped_data_list %}
+            <div class="carousel-item {% if loop.index == 1 %}active{% endif %}">
+              <div class="food-card">
+                <img src="data:image/jpg;base64,{{ image }}" alt="{{ item }}">
+                <h4>{{ item }}</h4>
+                <p class="price">{{ price }}</p>
+                <h4>{{ store }}</h4>
+                <div class="quantity-selector">
+                  <button class="quantity-btn quantity-minus">-</button>
+                  <span class="quantity">0</span>
+                  <button class="quantity-btn quantity-plus">+</button>
+                </div>
+                <button class="cart-btn" data-item="{{ item|safe }}" data-store={{store}} data-price={{price}} data-storeid={{store_id}} onclick="addToCart(event)" >Add to cart</button>
+              </div>
+            </div>
+          
+		{% endfor %}
+
+        
+      </div>
+	  <!-- Carousel Controls -->
+        <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#imageCarousel" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+  <script>
+  // Get all the quantity buttons and quantity displays
+  const quantityBtns = document.querySelectorAll('.quantity-btn');
+  const quantityDisplays = document.querySelectorAll('.quantity');
+  
+  // Add event listeners to the quantity buttons
+  quantityBtns.forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      const quantityDisplay = e.target.closest('.food-card').querySelector('.quantity');
+      let quantity = parseInt(quantityDisplay.textContent);
+  
+      if (e.target.classList.contains('quantity-plus') && quantity < 25) {
+        quantity++;
+      } else if (e.target.classList.contains('quantity-minus') && quantity > 0) {
+        quantity--;
+      }
+  
+      quantityDisplay.textContent = quantity;
+    });
+  });
+  
+  function addToCart(event) {
+    // Prevent the default behavior if any
+    event.preventDefault();
+
+    // Get the clicked button
+    const button = event.target;
+
+    // Get data from the button's attributes
+    const item = button.getAttribute('data-item');
+    const store = button.getAttribute('data-store');
+    const price = button.getAttribute('data-price');
+    const store_id = button.getAttribute('data-storeid');
+
+    // Get the quantity from the closest .food-card
+    const quantityDisplay = button.closest('.food-card').querySelector('.quantity');
+    let quantity = parseInt(quantityDisplay.textContent);
+
+    // Send the data to Flask using Fetch
+    fetch('/add_to_cart_menu', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        item: item,
+        quantity: quantity,
+        price: price,
+        store_id: store_id,
+      }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Show a success message or an error based on the response
+      const messageDiv = document.getElementById('response-message');
+      if (messageDiv) {
+        messageDiv.innerHTML = `<p style="color: green;">Cart Updated Successfully</p>`;
+      } else {
+        alert(data.message);  // Show the message from the server in an alert
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Show an error message if something goes wrong
+      alert("Failed to update the cart. Please try again.");
+    });
+  }
+</script>
+
+
+</body>
+</html>
