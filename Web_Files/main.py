@@ -33,22 +33,19 @@ def valid_login():
         isexist, user_name, categories = sq.check_valid_user(username, password)
         stores, items, prices, images, store_id = sq.get_top_stores()
 
-        if (isexist):
+        if isexist:
 
             current_time = datetime.now()
             hour = current_time.hour
-            if (hour > 0 and hour < 12):
+            if hour < 12:
                 message = "Good Morning" + " " + user_name
-                global_message = message
-            if (hour >= 12 and hour < 16):
+            elif hour < 16:
                 message = "Good Afternoon" + " " + user_name
-                global_message = message
-            if (hour >= 16 and hour <= 23):
+            else:
                 message = "Good Evening" + " " + user_name
-                global_message = message
 
+            session['global_message'] = message
             zipped_data = zip(stores, items, prices, images, store_id)
-            session['global_message'] = global_message
 
             return render_template("user home.html", message=session['global_message'], categories=categories,
                                    zipped_data=zipped_data)
@@ -83,11 +80,12 @@ def logout():
 def signup():
     return render_template('signup.html')
 
+
 @app.route('/cart')
 def cart():
-    store_id,item, price,total,qty = sq.get_cart(session['username'])
-    zipped_data = zip( store_id,item, price,qty)
-    return render_template('cart.html',message = session['global_message'],zipped_data = zipped_data,total=total)
+    store_id, item, price, total, qty = sq.get_cart(session['username'])
+    zipped_data = zip(store_id, item, price, qty)
+    return render_template('cart.html', message=session['global_message'], zipped_data=zipped_data, total=total)
 
 
 @app.route('/food')
@@ -129,12 +127,11 @@ def signup_user():
         refId = int(request.form['Id'])
         regexp_un = "[A-Z]*[a-z]+[0-9]*_*"
         regexp_pw = "[A-Z]+[a-z]+[0-9]*_*"
-        if not (re.search(regexp_un, username)) or len(username) < 8 or len(username) > 15 or len(
-                password) > 15 or not (re.search(regexp_pw, password)) or len(username) < 8:
+        if not (re.search(regexp_un, username)) or len(username) < 8 or len(username) > 15 or len(password) > 15 or not (re.search(regexp_pw, password)) or len(username) < 8:
             return render_template('signup.html', error="Incorrect Username and password combination")
         selected_value = request.form.get('userType')
         bool_check, message = sq.checkValidEntry(username, password, refId, selected_value)
-        if (bool_check):
+        if bool_check:
             flash("User Created successfully", "success")
             return render_template('login.html')
         else:
@@ -169,6 +166,30 @@ def add_to_cart_menu():
     return jsonify({'success': True, 'message': 'Item added to cart successfully!'})
 
 
+# New route for updating the cart
+@app.route('/update_cart', methods=['POST'])
+def update_cart():
+    username = session['username']
+    item = request.form['item']
+    store_id = request.form['store_id']
+    action = request.form['action']  # 'add', 'decrease', or 'remove'
+
+    # Handle the actions
+    if action == 'add':
+        qty_change = 1
+    elif action == 'decrease':
+        qty_change = -1
+    elif action == 'remove':
+        sq.deleteItemFromCart(username, item, store_id)
+        return redirect(url_for('cart'))
+
+    # Update the cart with new quantity
+    sq.updateItemQuantityInCart(username, item, store_id, qty_change)
+
+    # Redirect back to the cart page
+    return redirect(url_for('cart'))
+
+
 # main driver function
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

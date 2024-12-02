@@ -5,7 +5,7 @@ import mysql.connector
 connection = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="root",
+    password="UshaUV1!",
     database="husky_eats"
 )
 
@@ -20,7 +20,7 @@ def convert_to_binary(filename):
 
 try:
     # Define the base path for the images
-    base_image_path = "E:/CS5200-DBMS/HuskyEats/Web_Files/grocery_images"
+    base_image_path = "C:/Users/PK/Documents/GitHub/HuskyEats/Web_Files/grocery_images"
 
     # Iterate through the store subdirectories
     for store_id in os.listdir(base_image_path):

@@ -7,7 +7,7 @@ from mysql.connector import Error
 conn = mysql.connector.connect(
     host="localhost",  # Change to your host, e.g., "127.0.0.1" or "your_host"
     user="root",  # Replace with your MySQL username
-    password="root",  # Replace with your MySQL password
+    password="UshaUV1!",  # Replace with your MySQL password
     database="husky_eats"  # Replace with the database name
 )
 
@@ -214,6 +214,47 @@ def updateCart(username,item,qty,price,store_id):
     price = float(price_new[1])
     cursor.callproc('update_cart',[username,store_id,item,cart_id,price,qty])
     conn.commit()
+
+
+def updateItemQuantityInCart(username, item, store_id, qty_change):
+    cursor = conn.cursor()
+    
+    # Select cart_id and current quantity from the cart
+    query = "SELECT cart_id, items_qty FROM cart WHERE username = %s AND items_name = %s AND store_id = %s"
+    cursor.execute(query, (username, item, store_id))
+    rows = cursor.fetchone()
+    if rows is not None:
+        cart_id = rows[0]
+        current_qty = rows[1]
+        new_qty = current_qty + qty_change
+        
+        if new_qty > 0:
+            update_query = "UPDATE cart SET items_qty = %s WHERE cart_id = %s AND items_name = %s"
+            cursor.execute(update_query, (new_qty, cart_id, item))
+            conn.commit()
+        elif new_qty == 0:
+            delete_query = "DELETE FROM cart WHERE cart_id = %s"
+            cursor.execute(delete_query, (cart_id,))
+            conn.commit()
+    else:
+        print(f"Item {item} not found in the cart.")
+
+def deleteItemFromCart(username, item, store_id):
+    cursor = conn.cursor()
+    
+    # Delete the item from the cart based on username, item, and store_id
+    delete_query = "DELETE FROM cart WHERE username = %s AND items_name = %s AND store_id = %s"
+    cursor.execute(delete_query, (username, item, store_id))
+    
+    # Commit the changes to the database
+    conn.commit()
+
+    # Print a message indicating success or failure
+    if cursor.rowcount > 0:
+        print(f"Item {item} removed from the cart.")
+    else:
+        print(f"Item {item} not found in the cart.")
+
 
 
 def get_cart(username):
