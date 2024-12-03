@@ -93,6 +93,11 @@ def food():
     category = sq.getCategory()
     return render_template('new_page.html', message=session['global_message'], categories=category)
 
+@app.route('/orders')
+def orders():
+
+    return render_template('order.html', message=session['global_message'])
+
 
 @app.route('/grocery')
 def grocery():
