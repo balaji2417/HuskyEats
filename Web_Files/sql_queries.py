@@ -2,6 +2,9 @@ import base64
 
 import pymysql
 import random
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import mysql.connector
 from mysql.connector import Error
 
@@ -313,7 +316,7 @@ def deleteItemFromCart(username, item, store_id):
     else:
         print(f"Item {item} not found in the cart.")
 
-import random
+
 
 def place_order(username, total_price, delivery_location):
     cursor = conn.cursor()
@@ -321,7 +324,9 @@ def place_order(username, total_price, delivery_location):
     try:
         # Generate OTP for the order (6-digit)
         otp = random.randint(1000, 9999)
-        
+
+
+
         # Insert a new order into the 'orders' table
         insert_order_query = """
             INSERT INTO orders (username, Total_amount, delivery_location, iaAssigned, isDelivered, OTP)
@@ -358,10 +363,30 @@ def place_order(username, total_price, delivery_location):
         for item in cart_items:
             cart_id = item[0]
             cursor.execute(update_cart_query, (order_id, cart_id))
-        
+
+
         # Commit the updates to the cart table
         conn.commit()
-        
+        cursor = conn.cursor()
+        cursor.execute("SELECT get_email(%s)", (username,))
+        email = ""
+        rows = cursor.fetchall()
+        for row in rows:
+          email = row[0]
+        sender_email = "balajisundar859@gmail.com"
+        print("Hello:",email)
+        receiver_email = email
+        msg = MIMEMultipart()
+        msg['From'] = sender_email
+        msg['To'] = receiver_email
+        msg['Subject'] = "OTP for Order "+str(order_id)
+        body = "OTP Is :"+str(otp)
+        msg.attach(MIMEText(body, 'plain'))
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()  # Start TLS (Transport Layer Security)
+        server.login(sender_email, 'shpi ssli lsfx ahvt')
+        server.sendmail(sender_email, receiver_email, msg.as_string())
+        server.quit()
         # Return success message with OTP
         return f"Order placed successfully! Your OTP is {otp}"
 
