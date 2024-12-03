@@ -11,6 +11,63 @@ conn = mysql.connector.connect(
     password="root",  # Replace with your MySQL password
     database="husky_eats"  # Replace with the database name
 )
+def get_ordered_cart(order_ids) :
+    order_data = []
+    for order_id in order_ids:
+        sub_orders=[]
+        sub_orders.append(order_id)
+        if(order_id is None):
+            continue
+        cursor=conn.cursor()
+        query = "Select * from cart where order_id = %s"
+        cursor.execute(query,(order_id,))
+        rows = cursor.fetchall()
+        for row in rows:
+            items = []
+            items.append(row[3])
+            items.append(row[5])
+            items.append("$"+str(row[4]))
+            items.append("$"+str(row[5]*row[4]))
+            sub_orders.append(items)
+        order_data.append(sub_orders)
+    return order_data
+
+
+def get_building():
+    cursor = conn.cursor()
+    query = "SELECT building_name from building"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    building = []
+    for row in rows:
+        building.append(row[0])
+    return building
+
+
+
+def get_orders():
+    cursor = conn.cursor()
+    query = "SELECT order_id,Delivery_agent_id,Total_amount,iaAssigned,isDelivered FROM orders where isDelivered = false"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    order_id = []
+    deliveryAgent = []
+    status = []
+    totalPrice = []
+    for row in rows:
+        order_id.append(row[0])
+        if(not row[3]):
+            deliveryAgent.append("Delivery agent not assigned")
+        else:
+            deliveryAgent.append(row[1])
+        if(not row[3]):
+            status.append("Order Placed")
+        elif(row[3] and not row[4]):
+            status.append("On the way")
+        else:
+            status.append("Delivered")
+        totalPrice.append("$"+str(row[2]))
+    return order_id,deliveryAgent,status,totalPrice
 
 
 def get_images():

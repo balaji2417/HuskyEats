@@ -117,19 +117,19 @@
   
   <!-- Order Details -->
   <div id="order-container">
-  {% for order_id, item, price, qty in zipped_data %}
-     <h5>Order ID: ${order.orderId}</h5>
-        <p>Store: ${order.storeName} <span>(${order.storeRating}⭐)</span></p>
-        <p>Delivery Agent: ${order.deliveryAgent}</p>
-        <p>Status: ${order.status}</p>
-        <p class="order-total">Total: $${totalPrice}</p>
-        <button class="view-items-btn" data-bs-toggle="modal" data-bs-target="#itemsModal">View Items</button>
+  {% for order_id, deliveryAgent, status, totalPrice in zipped_data %}
+     <h5>Order ID: {{order_id}}</h5>
+        <p>Delivery Agent: {{deliveryAgent}}</p>
+        <p>Status: {{status}}</p>
+        <p class="order-total">Total: {{totalPrice}}</p>
+        <button class="view-items-btn" data-bs-toggle="modal" data-bs-target="#itemsModal" data-order-id="{{ order_id }}">View Items</button>
         <button 
           class="review-btn btn btn-secondary" 
           onclick="openReviewModal('${order.orderId}')" 
-          ${order.status !== 'Delivered' ? 'disabled' : ''}>
+         {% if status != 'Delivered' %} disabled {% endif %}>
           Review
         </button>
+		<br> </br>
 	{% endfor %}
   </div>
 </div>
@@ -145,24 +145,7 @@
       <div class="modal-body">
         <ul id="items-list" class="list-group">
           <!-- Static Order Items -->
-          <li class="list-group-item">
-            <strong>Product A</strong><br>
-            Quantity: 2 <br>
-            Price: $10 each <br>
-            Total: $20
-          </li>
-          <li class="list-group-item">
-            <strong>Product B</strong><br>
-            Quantity: 1 <br>
-            Price: $15 each <br>
-            Total: $15
-          </li>
-          <li class="list-group-item">
-            <strong>Product C</strong><br>
-            Quantity: 3 <br>
-            Price: $7 each <br>
-            Total: $21
-          </li>
+   
         </ul>
       </div>
     </div>
@@ -210,9 +193,38 @@
   let selectedRating = 0; // To store the selected star rating
 
  
+  const orderData = {{ order_data | tojson }};
 
+ document.querySelectorAll('.view-items-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      // Get the selected order ID from the data attribute
+      const orderId = this.getAttribute('data-order-id');
+      
+      // Find the order data for the clicked order_id
+	  
+	  const orderItems = orderData.find(order => order[0] === parseInt(orderId));
+	 
+	  
 
-
+      if (orderItems) {
+        // Get the items from the order
+        const itemsList = document.getElementById('items-list');
+        itemsList.innerHTML = ''; // Clear any existing content
+        
+        orderItems.slice(1).forEach(item => {
+          const listItem = document.createElement('li');
+          listItem.classList.add('list-group-item');
+          listItem.innerHTML = `
+            <strong>${item[0]}</strong><br>
+            Quantity: ${item[1]} <br>
+            Price: ${item[2]} <br>
+            Total: ${item[3]}
+          `;
+          itemsList.appendChild(listItem);
+        });
+      }
+    });
+  });
   // Function to open the review modal
   function openReviewModal(orderId) {
     currentOrderId = orderId; // Set the current order ID

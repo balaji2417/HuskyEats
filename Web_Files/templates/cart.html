@@ -202,7 +202,12 @@
     <!-- Delivery Location Input -->
     <div class="form-group">
       <label for="deliveryLocation">Delivery Location:</label>
-      <input type="text" class="form-control" id="deliveryLocation" placeholder="Enter delivery location" required>
+   <select class="form-select" aria-label="Default select example" id = "deliveryLocation">
+  <option selected>Select The Building</option>
+  {% for build in building %}
+  <option value="{{build}}">{{build}}</option>
+    {% endfor %}
+</select>
     </div>
 
     <!-- Place Order Button -->
@@ -238,7 +243,7 @@
       .then(response => response.json())
       .then(data => {
         alert('Order placed successfully');
-        // Redirect to the confirmation page or handle success
+        window.location.href = '/orders';
       })
       .catch(error => {
         console.error('Error placing order:', error);

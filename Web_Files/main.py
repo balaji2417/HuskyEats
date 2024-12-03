@@ -25,7 +25,6 @@ def login_home():
 
 @app.route('/check_valid_login', methods=['GET', 'POST'])
 def valid_login():
-
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -85,7 +84,8 @@ def signup():
 def cart():
     store_id, item, price, total, qty = sq.get_cart(session['username'])
     zipped_data = zip(store_id, item, price, qty)
-    return render_template('cart.html', message=session['global_message'], zipped_data=zipped_data, total=total)
+    building = sq.get_building()
+    return render_template('cart.html', message=session['global_message'], building = building,zipped_data=zipped_data, total=total)
 
 
 @app.route('/food')
@@ -93,10 +93,14 @@ def food():
     category = sq.getCategory()
     return render_template('new_page.html', message=session['global_message'], categories=category)
 
+
 @app.route('/orders')
 def orders():
-
-    return render_template('order.html', message=session['global_message'])
+    order_id, deliveryAgent, status, totalPrice = sq.get_orders()
+    zipped_data = zip(order_id, deliveryAgent, status, totalPrice)
+    order_data=sq.get_ordered_cart(order_id)
+    print(order_data)
+    return render_template('order.html', zipped_data=zipped_data,order_data = order_data, message=session['global_message'])
 
 
 @app.route('/grocery')
@@ -132,7 +136,8 @@ def signup_user():
         refId = int(request.form['Id'])
         regexp_un = "[A-Z]*[a-z]+[0-9]*_*"
         regexp_pw = "[A-Z]+[a-z]+[0-9]*_*"
-        if not (re.search(regexp_un, username)) or len(username) < 8 or len(username) > 15 or len(password) > 15 or not (re.search(regexp_pw, password)) or len(username) < 8:
+        if not (re.search(regexp_un, username)) or len(username) < 8 or len(username) > 15 or len(
+                password) > 15 or not (re.search(regexp_pw, password)) or len(username) < 8:
             return render_template('signup.html', error="Incorrect Username and password combination")
         selected_value = request.form.get('userType')
         bool_check, message = sq.checkValidEntry(username, password, refId, selected_value)
@@ -194,31 +199,31 @@ def update_cart():
     # Redirect back to the cart page
     return redirect(url_for('cart'))
 
+
 @app.route('/place_order', methods=['POST'])
 def place_order():
     # Check if the user is logged in (assuming session management)
     if 'username' not in session:
         flash('You must be logged in to place an order', 'danger')
         return redirect(url_for('login'))  # Redirect to login page if not logged in
-    
+
     # Get JSON data from the request body
     order_data = request.get_json()
     total_price = float(order_data.get('totalPrice'))  # Access totalPrice from the JSON body
     delivery_location = order_data.get('deliveryLocation')  # Access deliveryLocation from the JSON body
-    
+
     # Check if both fields are provided
     if not total_price or not delivery_location:
         return jsonify({"error": "Missing totalPrice or deliveryLocation"}), 400
 
     # Call the place_order function from the database handler (sq)
     result = sq.place_order(session['username'], total_price, delivery_location)
-    
+
     # Handle the result and provide feedback to the user
     if 'success' in result.lower():
         return jsonify({"message": "Order placed successfully"}), 200  # Return success response
     else:
         return jsonify({"error": result}), 400  # Return error response
-
 
 
 # main driver function
