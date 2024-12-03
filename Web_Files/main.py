@@ -31,6 +31,7 @@ def valid_login():
         session['username'] = username
         isexist, user_name, categories = sq.check_valid_user(username, password)
         stores, items, prices, images, store_id = sq.get_top_stores()
+    
 
         if isexist:
 
@@ -96,8 +97,8 @@ def food():
 
 @app.route('/orders')
 def orders():
-    order_id, deliveryAgent, status, totalPrice = sq.get_orders()
-    zipped_data = zip(order_id, deliveryAgent, status, totalPrice)
+    order_id, deliveryAgent, status, totalPrice, store_id = sq.get_orders()
+    zipped_data = zip(order_id, deliveryAgent, status, totalPrice,store_id)
     order_data=sq.get_ordered_cart(order_id)
     print(status)
     print(order_data)
@@ -225,6 +226,40 @@ def place_order():
         return jsonify({"message": "Order placed successfully"}), 200  # Return success response
     else:
         return jsonify({"error": result}), 400  # Return error response
+    
+
+@app.route('/submit_rating', methods=['POST'])
+def submit_rating():
+    if 'username' not in session:
+        flash("You must be logged in to submit a rating", "danger")
+        return redirect(url_for('login_home'))  # Redirect to login if the user is not logged in
+
+
+    store_id = request.form['store_id']
+    rating_num = request.form['rating_num']
+    feedback = request.form['feedback']
+
+    try:
+        rating_num = float(rating_num)
+        if not (1 <= rating_num <= 5):
+            flash("Rating must be between 1 and 5.", "danger")
+            return redirect(url_for('home_display'))  # Redirect to home or the relevant page
+    except ValueError:
+        flash("Invalid rating value. Please provide a number between 1 and 5.", "danger")
+        return redirect(url_for('home_display'))  # Redirect to home or the relevant page
+
+    # Get the username from the session
+    username = session['username']
+
+    # Call the submit_rating function from the sql_queries module
+    result_message = sq.submit_rating(username, store_id, rating_num, feedback)
+
+    # Provide feedback to the user
+    flash(result_message, "success")
+
+    # Redirect to the relevant page (you can change this to the store page or wherever you want)
+    return redirect(url_for('orders'))
+
 
 
 # main driver function

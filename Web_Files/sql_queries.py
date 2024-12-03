@@ -11,7 +11,7 @@ from mysql.connector import Error
 conn = mysql.connector.connect(
     host="localhost",  # Change to your host, e.g., "127.0.0.1" or "your_host"
     user="root",  # Replace with your MySQL username
-    password="root",  # Replace with your MySQL password
+    password="UshaUV1!",  # Replace with your MySQL password
     database="husky_eats"  # Replace with the database name
 )
 def get_ordered_cart(order_ids) :
@@ -48,31 +48,51 @@ def get_building():
     return building
 
 
-
 def get_orders():
     conn.commit()
     cursor = conn.cursor()
-    query = "SELECT order_id,Delivery_agent_id,Total_amount,iaAssigned,isDelivered FROM orders"
+    
+    # Updated query to join 'orders' with 'cart' using 'order_id' and select 'store_id' from 'cart'
+    query = """
+        SELECT o.order_id, o.Delivery_agent_id, o.Total_amount, o.iaAssigned, o.isDelivered, c.store_id
+        FROM orders o
+        LEFT JOIN cart c ON o.order_id = c.order_id
+    """
     cursor.execute(query)
     rows = cursor.fetchall()
+    
     order_id = []
     deliveryAgent = []
     status = []
     totalPrice = []
+    store_id = []  # List to hold store_id values
+    
     for row in rows:
         order_id.append(row[0])
-        if(not row[3]):
+        
+        # Handle delivery agent
+        if not row[3]:
             deliveryAgent.append("Delivery agent not assigned")
         else:
             deliveryAgent.append(row[1])
-        if(not row[3]):
+        
+        # Handle order status
+        if not row[3]:
             status.append("Order Placed")
-        elif(row[3] and not row[4]):
+        elif row[3] and not row[4]:
             status.append("On the way")
         else:
             status.append("Delivered")
-        totalPrice.append("$"+str(row[2]))
-    return order_id,deliveryAgent,status,totalPrice
+        
+        # Format total price
+        totalPrice.append("$" + str(row[2]))
+        
+        # Append store_id (from cart)
+        store_id.append(row[5])
+    
+    # Return all lists, including store_id
+    return order_id, deliveryAgent, status, totalPrice, store_id
+
 
 
 def get_images():
@@ -397,7 +417,55 @@ def place_order(username, total_price, delivery_location):
         print(f"Error occurred: {str(e)}")
         return f"Failed to place order: {str(e)}"
 
+def submit_rating(username, store_id, rating_num, feedback):
+    cursor = conn.cursor()
+    
+    try:
+        # Check if a rating already exists for this user and store
+        query = "SELECT * FROM rating WHERE store_id = %s AND username = %s"
+        cursor.execute(query, (store_id, username))
+        existing_review = cursor.fetchone()
 
+        if existing_review:
+            # If review exists, update it
+            update_query = """
+                UPDATE rating 
+                SET rating_num = %s, feedback = %s 
+                WHERE store_id = %s AND username = %s
+            """
+            cursor.execute(update_query, (rating_num, feedback, store_id, username))
+        else:
+            # If no review exists, insert a new one
+            insert_query = """
+                INSERT INTO rating (store_id, username, rating_num, feedback)
+                VALUES (%s, %s, %s, %s)
+            """
+            cursor.execute(insert_query, (store_id, username, rating_num, feedback))
+        
+        # # After inserting or updating the review, calculate the new average rating
+        # calculate_avg_rating_query = """
+        #     SELECT AVG(rating_num) FROM rating WHERE store_id = %s
+        # """
+        # cursor.execute(calculate_avg_rating_query, (store_id,))
+        # new_avg_rating = cursor.fetchone()[0]
+
+        # # Update the 'rating_num' column in the 'rating' table with the new average
+        # update_rating_num_query = """
+        #     UPDATE rating
+        #     SET rating_num = %s
+        #     WHERE store_id = %s
+        # """
+        # cursor.execute(update_rating_num_query, (new_avg_rating, store_id))
+
+        # Commit the changes to the database
+        conn.commit()
+
+        return "Review submitted and average rating updated successfully!"
+
+    except Error as e:
+        conn.rollback()  # Rollback in case of an error
+        print(f"Error occurred: {str(e)}")
+        return f"Failed to submit review: {str(e)}"
 
 
 def get_cart(username):

@@ -1,28 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
   <title>Your Order</title>
-
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
- <link rel="icon" href="logo.jpg" type="image/jpg">
-    <!-- Bootstrap CSS -->
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="icon" href="logo.jpg" type="image/jpg">
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-   
+  
   <style>
     /* Common Styles */
     .container-fluid {
       background-color: black;
       color: white;
     }
- img {
+    img {
       border-radius: 50%; /* Circular effect */
       max-width: 100px; /* Adjust image size */
       max-height: 100px;
@@ -33,12 +27,11 @@
       letter-spacing: 3px;
       text-align: center;
     }
-
     body {
       background-color: floralwhite;
       font-family: 'Inter', sans-serif;
     }
-
+    
     /* Order Page Specific */
     .order-card {
       background: white;
@@ -100,13 +93,11 @@
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: white;">
           {{message}}
         </a>
-		  <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-    <a class="dropdown-item" href="#">Cart</a>
-    <a class="dropdown-item" href="{{url_for('home_display')}}">Home</a>
-
-    <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
-   
-  </div>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+          <a class="dropdown-item" href="#">Cart</a>
+          <a class="dropdown-item" href="{{url_for('home_display')}}">Home</a>
+          <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+        </div>
       </div>
     </div>
   </div>
@@ -117,15 +108,15 @@
   
   <!-- Order Details -->
   <div id="order-container">
-  {% for order_id, deliveryAgent, status, totalPrice in zipped_data %}
-     <h5>Order ID: {{order_id}}</h5>
-        <p>Delivery Agent: {{deliveryAgent}}</p>
-        <p>Status: {{status}}</p>
-        <p class="order-total">Total: {{totalPrice}}</p>
+  {% for order_id, deliveryAgent, status, totalPrice, store_id in zipped_data %}
+     <h5>Order ID: {{ order_id }}</h5>
+        <p>Delivery Agent: {{ deliveryAgent }}</p>
+        <p>Status: {{ status }}</p>
+        <p class="order-total">Total: {{ totalPrice }}</p>
         <button class="view-items-btn" data-bs-toggle="modal" data-bs-target="#itemsModal" data-order-id="{{ order_id }}">View Items</button>
         <button 
           class="review-btn btn btn-secondary" 
-          onclick="openReviewModal('${order.orderId}')" 
+          onclick="openReviewModal('{{ order_id }}', '{{ store_id }}')" 
          {% if status != 'Delivered' %} disabled {% endif %}>
           Review
         </button>
@@ -145,13 +136,11 @@
       <div class="modal-body">
         <ul id="items-list" class="list-group">
           <!-- Static Order Items -->
-   
         </ul>
       </div>
     </div>
   </div>
 </div>
-
 
 <!-- Modal for Review -->
 <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
@@ -162,10 +151,12 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form id="reviewForm">
+        <form id="reviewForm" method="POST" action="{{ url_for('submit_rating') }}">
+          <input type="hidden" id="store_id" name="store_id">
+          <input type="hidden" id="rating_num" name="rating_num">  <!-- Hidden rating number -->
           <div class="mb-3">
             <label for="feedback" class="form-label">Choose Feedback</label>
-            <select id="feedback" class="form-select">
+            <select id="feedback" class="form-select" name="feedback">
               <option value="Excellent">Excellent</option>
               <option value="Good">Good</option>
               <option value="Average">Average</option>
@@ -178,7 +169,7 @@
               <!-- Stars will be dynamically added here -->
             </div>
           </div>
-          <button type="button" class="btn btn-primary" onclick="submitFeedback()">Submit</button>
+          <button type="submit" class="btn btn-primary">Submit</button>
         </form>
       </div>
     </div>
@@ -186,85 +177,76 @@
 </div>
 
 <script>
-  // Example data for the orders
-  
-
   let currentOrderId = null; // To store the ID of the order being reviewed
   let selectedRating = 0; // To store the selected star rating
 
- 
-  const orderData = {{ order_data | tojson }};
+  const orderData = {{ order_data | tojson }}; // Pass order data from Flask to JavaScript
 
- document.querySelectorAll('.view-items-btn').forEach(button => {
+  document.querySelectorAll('.view-items-btn').forEach(button => {
     button.addEventListener('click', function() {
-      // Get the selected order ID from the data attribute
       const orderId = this.getAttribute('data-order-id');
-      
-      // Find the order data for the clicked order_id
-	  
-	  const orderItems = orderData.find(order => order[0] === parseInt(orderId));
-	 
-	  
+      const orderItems = orderData.find(order => order[0] === parseInt(orderId));
 
       if (orderItems) {
-        // Get the items from the order
         const itemsList = document.getElementById('items-list');
-        itemsList.innerHTML = ''; // Clear any existing content
-        
+        itemsList.innerHTML = ''; // Clear existing content
+
         orderItems.slice(1).forEach(item => {
           const listItem = document.createElement('li');
           listItem.classList.add('list-group-item');
-          listItem.innerHTML = `
+          listItem.innerHTML = ` 
             <strong>${item[0]}</strong><br>
             Quantity: ${item[1]} <br>
             Price: ${item[2]} <br>
-            Total: ${item[3] | round(2)}
+            Total: ${item[3].toFixed(2)}
           `;
           itemsList.appendChild(listItem);
         });
       }
     });
   });
+
   // Function to open the review modal
-  function openReviewModal(orderId) {
-    currentOrderId = orderId; // Set the current order ID
-    selectedRating = 0; // Reset the rating
-    renderStars();
+  function openReviewModal(orderId, storeId) {
+    currentOrderId = orderId;
     const reviewModal = new bootstrap.Modal(document.getElementById('reviewModal'));
     reviewModal.show();
+
+    // Set store_id in the hidden field
+    document.getElementById('store_id').value = storeId;
+
+    setupStars();
   }
 
-  // Function to render stars
-  function renderStars() {
-    const ratingStars = document.getElementById('rating-stars');
-    ratingStars.innerHTML = '';
-
+  // Function to setup rating stars
+  function setupStars() {
+    const ratingContainer = document.getElementById('rating-stars');
+    ratingContainer.innerHTML = ''; // Clear previous stars
     for (let i = 1; i <= 5; i++) {
       const star = document.createElement('span');
       star.innerHTML = '★';
-      star.className = i <= selectedRating ? 'active' : '';
-      star.onclick = () => setRating(i);
-      ratingStars.appendChild(star);
+      star.classList.add('inactive');
+      star.addEventListener('click', () => setRating(i));
+      ratingContainer.appendChild(star);
     }
   }
 
-  // Function to set rating
+  // Set the selected rating when a star is clicked
   function setRating(rating) {
     selectedRating = rating;
-    renderStars();
-  }
+    // Set the rating value in the hidden input field
+    document.getElementById('rating_num').value = selectedRating;
 
-  // Function to submit feedback
-  function submitFeedback() {
-    const feedback = document.getElementById('feedback').value;
-    alert(`Thank you for your review of Order ID: ${currentOrderId}.
-Feedback: ${feedback}.
-Rating: ${selectedRating} stars.`);
-    const reviewModal = bootstrap.Modal.getInstance(document.getElementById('reviewModal'));
-    reviewModal.hide();
+    const stars = document.querySelectorAll('#rating-stars span');
+    stars.forEach((star, index) => {
+      star.classList.remove('active', 'inactive');
+      if (index < rating) {
+        star.classList.add('active');
+      } else {
+        star.classList.add('inactive');
+      }
+    });
   }
-
-  
 </script>
 
 </body>
