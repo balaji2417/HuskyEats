@@ -117,7 +117,7 @@
   
   <!-- Order Details -->
   <div id="order-container">
-  {% for store, item, price, qty in zipped_data %}
+  {% for order_id, item, price, qty in zipped_data %}
      <h5>Order ID: ${order.orderId}</h5>
         <p>Store: ${order.storeName} <span>(${order.storeRating}⭐)</span></p>
         <p>Delivery Agent: ${order.deliveryAgent}</p>
