@@ -6,14 +6,14 @@
   <title>Shopping Cart</title>
   <link rel="icon" href="logo.jpg" type="image/jpg">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
-   <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
- <link rel="icon" href="logo.jpg" type="image/jpg">
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="icon" href="logo.jpg" type="image/jpg">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   <style>
     /* Cart Item Styling */
     .cart-item {
@@ -169,13 +169,13 @@
               <input type="hidden" name="username" value="{{ username }}">
               <input type="hidden" name="item" value="{{ item }}">
               <input type="hidden" name="store_id" value="{{ store }}">
-    
+
               <!-- Decrease quantity button -->
               <button type="submit" name="action" value="decrease" class="quantity-btn">-</button>
-              
+
               <!-- Display quantity -->
               <span class="quantity">{{ qty }}</span>
-              
+
               <!-- Add quantity button -->
               <button type="submit" name="action" value="add" class="quantity-btn">+</button>
             </form>
@@ -196,7 +196,13 @@
 
     <!-- Total Price -->
     <div class="text-right">
-      <h4>Total Price: $<span id="totalPrice">{{ total }}</span></h4>
+      <h4>Total Price: ${{ total|round(2) }}</h4>
+    </div>
+
+    <!-- Delivery Location Input -->
+    <div class="form-group">
+      <label for="deliveryLocation">Delivery Location:</label>
+      <input type="text" class="form-control" id="deliveryLocation" placeholder="Enter delivery location" required>
     </div>
 
     <!-- Place Order Button -->
@@ -205,24 +211,37 @@
     </div>
   </div>
 
-  <!-- JavaScript for Quantity Update (Optional, Backend handles it) -->
   <script>
-    // This script can be omitted if backend fully handles updates.
-    const quantityBtns = document.querySelectorAll('.quantity-btn');
-    const quantityDisplays = document.querySelectorAll('.quantity');
-  
-    quantityBtns.forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        const quantityDisplay = e.target.closest('.bb').querySelector('.quantity');
-        let quantity = parseInt(quantityDisplay.textContent);
-        
-        if (e.target.value === 'add' && quantity < 25) {
-          quantity++;
-        } else if (e.target.value === 'decrease' && quantity > 0) {
-          quantity--;
-        }
-    
-        quantityDisplay.textContent = quantity;
+    document.getElementById('placeOrderBtn').addEventListener('click', function() {
+      const deliveryLocation = document.getElementById('deliveryLocation').value;
+      const totalPrice = '{{ total|round(2) }}';
+
+      if (!deliveryLocation) {
+        alert('Please enter a delivery location');
+        return;
+      }
+
+      // Sending the data via AJAX or form submission
+      const orderData = {
+        totalPrice: totalPrice,
+        deliveryLocation: deliveryLocation,
+      };
+
+      // Example: Send data to the backend (e.g., via a POST request)
+      fetch('{{ url_for("place_order") }}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert('Order placed successfully');
+        // Redirect to the confirmation page or handle success
+      })
+      .catch(error => {
+        console.error('Error placing order:', error);
       });
     });
   </script>

@@ -194,6 +194,32 @@ def update_cart():
     # Redirect back to the cart page
     return redirect(url_for('cart'))
 
+@app.route('/place_order', methods=['POST'])
+def place_order():
+    # Check if the user is logged in (assuming session management)
+    if 'username' not in session:
+        flash('You must be logged in to place an order', 'danger')
+        return redirect(url_for('login'))  # Redirect to login page if not logged in
+    
+    # Get JSON data from the request body
+    order_data = request.get_json()
+    total_price = float(order_data.get('totalPrice'))  # Access totalPrice from the JSON body
+    delivery_location = order_data.get('deliveryLocation')  # Access deliveryLocation from the JSON body
+    
+    # Check if both fields are provided
+    if not total_price or not delivery_location:
+        return jsonify({"error": "Missing totalPrice or deliveryLocation"}), 400
+
+    # Call the place_order function from the database handler (sq)
+    result = sq.place_order(session['username'], total_price, delivery_location)
+    
+    # Handle the result and provide feedback to the user
+    if 'success' in result.lower():
+        return jsonify({"message": "Order placed successfully"}), 200  # Return success response
+    else:
+        return jsonify({"error": result}), 400  # Return error response
+
+
 
 # main driver function
 if __name__ == '__main__':

@@ -1,13 +1,14 @@
 import base64
 
 import pymysql
+import random
 import mysql.connector
 from mysql.connector import Error
 
 conn = mysql.connector.connect(
     host="localhost",  # Change to your host, e.g., "127.0.0.1" or "your_host"
     user="root",  # Replace with your MySQL username
-    password="root",  # Replace with your MySQL password
+    password="UshaUV1!",  # Replace with your MySQL password
     database="husky_eats"  # Replace with the database name
 )
 
@@ -254,6 +255,64 @@ def deleteItemFromCart(username, item, store_id):
         print(f"Item {item} removed from the cart.")
     else:
         print(f"Item {item} not found in the cart.")
+
+import random
+
+def place_order(username, total_price, delivery_location):
+    cursor = conn.cursor()
+    
+    try:
+        # Generate OTP for the order (6-digit)
+        otp = random.randint(1000, 9999)
+        
+        # Insert a new order into the 'orders' table
+        insert_order_query = """
+            INSERT INTO orders (username, Total_amount, delivery_location, iaAssigned, isDelivered, OTP)
+            VALUES (%s, %s, %s, 0, 0, %s)
+        """
+        cursor.execute(insert_order_query, (username, total_price, delivery_location, otp))
+        
+        # Commit the transaction to save the order in the database
+        conn.commit()
+
+        # Get the order_id of the newly created order
+        order_id = cursor.lastrowid
+
+        # Retrieve cart items for the user (items that are not yet placed in an order)
+        get_cart_items_query = """
+            SELECT cart_id, store_id, items_name, items_qty, items_price
+            FROM cart
+            WHERE username = %s AND is_order_placed = 0
+        """
+        cursor.execute(get_cart_items_query, (username,))
+        cart_items = cursor.fetchall()
+
+        if not cart_items:
+            return "No items in the cart or items have already been ordered."
+
+        # Update the cart items to mark them as ordered and link them to the new order
+        update_cart_query = """
+            UPDATE cart
+            SET is_order_placed = 1, order_id = %s
+            WHERE cart_id = %s
+        """
+        
+        # Update each cart item to set 'is_order_placed = 1' and associate with the new order
+        for item in cart_items:
+            cart_id = item[0]
+            cursor.execute(update_cart_query, (order_id, cart_id))
+        
+        # Commit the updates to the cart table
+        conn.commit()
+        
+        # Return success message with OTP
+        return f"Order placed successfully! Your OTP is {otp}"
+
+    except Error as e:
+        conn.rollback()  # Rollback in case of any error
+        print(f"Error occurred: {str(e)}")
+        return f"Failed to place order: {str(e)}"
+
 
 
 
