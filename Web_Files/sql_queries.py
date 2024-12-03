@@ -15,6 +15,7 @@ conn = mysql.connector.connect(
     database="husky_eats"  # Replace with the database name
 )
 def get_ordered_cart(order_ids) :
+
     order_data = []
     for order_id in order_ids:
         sub_orders=[]
@@ -49,8 +50,9 @@ def get_building():
 
 
 def get_orders():
+    conn.commit()
     cursor = conn.cursor()
-    query = "SELECT order_id,Delivery_agent_id,Total_amount,iaAssigned,isDelivered FROM orders where isDelivered = false"
+    query = "SELECT order_id,Delivery_agent_id,Total_amount,iaAssigned,isDelivered FROM orders"
     cursor.execute(query)
     rows = cursor.fetchall()
     order_id = []
@@ -416,4 +418,5 @@ def get_cart(username):
         qty.append(row[5])
         total = total +( row[4] * row[5] )
     return store_id,item,price,total,qty
+
 

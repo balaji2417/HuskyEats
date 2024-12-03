@@ -218,7 +218,7 @@
             <strong>${item[0]}</strong><br>
             Quantity: ${item[1]} <br>
             Price: ${item[2]} <br>
-            Total: ${item[3]}
+            Total: ${item[3] | round(2)}
           `;
           itemsList.appendChild(listItem);
         });

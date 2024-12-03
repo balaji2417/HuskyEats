@@ -99,6 +99,7 @@ def orders():
     order_id, deliveryAgent, status, totalPrice = sq.get_orders()
     zipped_data = zip(order_id, deliveryAgent, status, totalPrice)
     order_data=sq.get_ordered_cart(order_id)
+    print(status)
     print(order_data)
     return render_template('order.html', zipped_data=zipped_data,order_data = order_data, message=session['global_message'])
 
