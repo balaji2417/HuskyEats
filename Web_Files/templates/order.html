@@ -180,7 +180,8 @@
   let currentOrderId = null; // To store the ID of the order being reviewed
   let selectedRating = 0; // To store the selected star rating
 
-  const orderData = {{ order_data | tojson }}; // Pass order data from Flask to JavaScript
+  const orderData = {{ order_data | tojson }};
+
 
   document.querySelectorAll('.view-items-btn').forEach(button => {
     button.addEventListener('click', function() {

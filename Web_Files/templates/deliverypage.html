@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delivery Agent Page</title>
+  <link rel="icon" href="logo.jpg" type="image/jpg">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      height: 100vh;
+      background-color: floralwhite;
+      background-size: cover;
+    }
+
+    #top-bar {
+      background-color: black;
+      color: white;
+      font-family: 'Inter', sans-serif;
+      padding: 15px 0;
+    }
+
+    .Name {
+      font-size: 36px; 
+      font-weight: 700; 
+      letter-spacing: 3px;
+      text-align: center;
+    }
+
+    .btn-disabled {
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .delivered {
+      color: green;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+    }
+
+    .tick-mark {
+      width: 20px;
+      margin-left: 5px;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="container-fluid" id="top-bar">
+    <div class="row">
+      <div class="col-sm text-center">
+        <img src="husky.png" alt="Husky Logo" style="width: 50px;">
+      </div>
+      <div class="col-sm text-center">
+        <h1 class="Name">Husky Eats</h1>
+      </div>
+      <div class="col-sm">
+        <div class="dropdown show">
+          <a style="background-color:black; color:white; margin-top:5px; margin-left:200px;" class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Delivery Agent
+          </a>
+
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <a class="dropdown-item" href="#">Logout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders Table -->
+  <div class="container mt-5">
+    <h2 class="text-center">Delivery Orders</h2>
+
+    <table class="table table-bordered">
+      <thead class="thead-dark">
+        <tr>
+          <th>Order ID</th>
+          <th>Delivery Location</th>
+          <th>View Items</th>
+          <th>Enter OTP</th>
+          <th>Action</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td>{{ order.order_id }}</td>
+          <td>{{ order.delivery_location }}</td>
+          <td>
+            <button class="btn btn-info btn-sm view-items-btn" data-toggle="modal" data-target="#viewItemsModal{{ order.order_id }}">View Items</button>
+      
+            <!-- Modal for Viewing Items -->
+            <div class="modal fade" id="viewItemsModal{{ order.order_id }}" tabindex="-1" role="dialog" aria-labelledby="viewItemsLabel{{ order.order_id }}" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="viewItemsLabel{{ order.order_id }}">Order Items</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <ul>
+                      <!-- Items would be displayed here -->
+                    </ul>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-sm enter-otp-btn" data-toggle="modal" data-target="#otpModal{{ order.order_id }}">Enter OTP</button>
+          </td>
+          <td>
+            <button class="btn btn-success btn-sm accept-btn">Accept</button>
+          </td>
+          <td>
+            <span class="status">Pending</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      // Disable buttons initially
+      $('.view-items-btn').prop('disabled', true);
+      $('.enter-otp-btn').prop('disabled', true);
+
+      // Enable buttons when the Accept button is clicked
+      $('.accept-btn').click(function () {
+        const row = $(this).closest('tr');
+        const orderId = row.find('td:first').text();  // Get the order ID
+        const deliveryAgentId = 'DA001'
+
+        // Make AJAX call to assign the order
+        $.ajax({
+          url: '/assign_order',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({
+            order_id: orderId,
+            delivery_agent_id: deliveryAgentId
+          }),
+          success: function(response) {
+            if (response.message === "Order assigned successfully") {
+              // Update the UI when the order is successfully assigned
+              row.find('.view-items-btn').prop('disabled', false).removeClass('btn-disabled');
+              row.find('.enter-otp-btn').prop('disabled', false).removeClass('btn-disabled');
+              $(this).prop('disabled', true).addClass('btn-disabled');
+              row.find('.status').text('Assigned').addClass('delivered'); // Update status
+            }
+          },
+          error: function(error) {
+            alert("Error: Could not assign order.");
+          }
+        });
+      });
+
+      // Handle OTP submission
+      $('.otp-form').submit(function (event) {
+        event.preventDefault(); // Prevent actual form submission
+        const row = $(this).closest('tr');
+        const statusCell = row.find('.status');
+        statusCell.html('<span class="delivered">Order Delivered Successfully </span>');
+        $(this).closest('.modal').modal('hide'); // Close the modal
+      });
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"></script>
+
+</body>
+</html>

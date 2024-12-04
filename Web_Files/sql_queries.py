@@ -93,6 +93,38 @@ def get_orders():
     # Return all lists, including store_id
     return order_id, deliveryAgent, status, totalPrice, store_id
 
+def get_orders_from_database():
+    # Create a cursor object to interact with the database
+    cursor = conn.cursor()
+
+    # Query to fetch all orders' order_id and delivery_location
+    query = """
+    SELECT order_id, delivery_location FROM orders
+    WHERE iaAssigned = 0  -- You can adjust the condition to suit your needs
+    """
+    cursor.execute(query)
+    
+    # Fetch all rows from the query result
+    rows = cursor.fetchall()
+    
+    # List to store order information
+    orders = []
+
+    # Populate the orders list with each order's ID and delivery location
+    for row in rows:
+        order_id = row[0]
+        delivery_location = row[1]
+        
+        # Append the order details to the orders list
+        orders.append({
+            'order_id': order_id,
+            'delivery_location': delivery_location
+        })
+    
+    # Return the list of orders
+    return orders
+
+
 
 
 def get_images():
@@ -347,8 +379,6 @@ def place_order(username, total_price, delivery_location):
         # Generate OTP for the order (6-digit)
         otp = random.randint(1000, 9999)
 
-
-
         # Insert a new order into the 'orders' table
         insert_order_query = """
             INSERT INTO orders (username, Total_amount, delivery_location, iaAssigned, isDelivered, OTP)
@@ -374,29 +404,60 @@ def place_order(username, total_price, delivery_location):
         if not cart_items:
             return "No items in the cart or items have already been ordered."
 
+        # Check if the available quantity in the grocery table is sufficient
+        for item in cart_items:
+            store_id = item[1]
+            item_name = item[2]
+            item_qty = item[3]
+
+            # Query to get the current stock in the grocery table
+            check_grocery_qty_query = """
+                SELECT item_qty
+                FROM grocery
+                WHERE store_id = %s AND item_name = %s
+            """
+            cursor.execute(check_grocery_qty_query, (store_id, item_name))
+            result = cursor.fetchone()
+
+            if result is None or result[0] < item_qty:
+                return f"Insufficient stock for {item_name}. Cannot place the order."
+
         # Update the cart items to mark them as ordered and link them to the new order
         update_cart_query = """
             UPDATE cart
             SET is_order_placed = 1, order_id = %s
             WHERE cart_id = %s
         """
-        
+
         # Update each cart item to set 'is_order_placed = 1' and associate with the new order
         for item in cart_items:
             cart_id = item[0]
+            store_id = item[1]
+            item_name = item[2]
+            item_qty = item[3]
+
+            # Reduce the quantity in the grocery table
+            update_grocery_query = """
+                UPDATE grocery
+                SET item_qty = item_qty - %s
+                WHERE store_id = %s AND item_name = %s
+            """
+            cursor.execute(update_grocery_query, (item_qty, store_id, item_name))
+
+            # Now update the cart to mark the item as ordered
             cursor.execute(update_cart_query, (order_id, cart_id))
 
-
-        # Commit the updates to the cart table
+        # Commit the updates to the cart table and grocery table
         conn.commit()
-        cursor = conn.cursor()
+
+        # Send OTP email
         cursor.execute("SELECT get_email(%s)", (username,))
         email = ""
         rows = cursor.fetchall()
         for row in rows:
-          email = row[0]
+            email = row[0]
+
         sender_email = "balajisundar859@gmail.com"
-        print("Hello:",email)
         receiver_email = email
         msg = MIMEMultipart()
         msg['From'] = sender_email
@@ -404,11 +465,13 @@ def place_order(username, total_price, delivery_location):
         msg['Subject'] = "OTP for Order "+str(order_id)
         body = "OTP Is :"+str(otp)
         msg.attach(MIMEText(body, 'plain'))
+        
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()  # Start TLS (Transport Layer Security)
-        server.login(sender_email, 'shpi ssli lsfx ahvt')
+        server.login(sender_email, 'shpi ssli lsfx ahvt')  # Replace with your actual email password
         server.sendmail(sender_email, receiver_email, msg.as_string())
         server.quit()
+
         # Return success message with OTP
         return f"Order placed successfully! Your OTP is {otp}"
 
@@ -416,6 +479,40 @@ def place_order(username, total_price, delivery_location):
         conn.rollback()  # Rollback in case of any error
         print(f"Error occurred: {str(e)}")
         return f"Failed to place order: {str(e)}"
+    
+
+def assign_order_to_delivery_agent(order_id, delivery_agent_id):
+    """
+    This function updates the orders table, setting the iaAssigned field to 1
+    and assigns the given delivery agent to the specified order.
+
+    :param order_id: The ID of the order to be updated.
+    :param delivery_agent_id: The ID of the delivery agent to assign to the order.
+    """
+    try:
+        # Create a cursor object to interact with the database
+        cursor = conn.cursor()
+
+        # Query to update the order with the delivery agent ID and set iaAssigned to 1
+        query = """
+        UPDATE orders
+        SET iaAssigned = 1, delivery_agent_id = %s
+        WHERE order_id = %s AND iaAssigned = 0
+        """
+        cursor.execute(query, (delivery_agent_id, order_id))
+
+        # Commit the transaction to make sure the changes are saved
+        conn.commit()
+
+        # Optionally return a success message or status
+        return True
+
+    except Exception as e:
+        # Handle any errors (e.g., database connection issues)
+        conn.rollback()  # Rollback in case of error
+        print(f"Error assigning order: {e}")
+        return False
+
 
 def submit_rating(username, store_id, rating_num, feedback):
     cursor = conn.cursor()
@@ -443,19 +540,19 @@ def submit_rating(username, store_id, rating_num, feedback):
             cursor.execute(insert_query, (store_id, username, rating_num, feedback))
         
         # # After inserting or updating the review, calculate the new average rating
-        # calculate_avg_rating_query = """
-        #     SELECT AVG(rating_num) FROM rating WHERE store_id = %s
-        # """
-        # cursor.execute(calculate_avg_rating_query, (store_id,))
-        # new_avg_rating = cursor.fetchone()[0]
+        calculate_avg_rating_query = """
+            SELECT AVG(rating_num) FROM rating WHERE store_id = %s
+        """
+        cursor.execute(calculate_avg_rating_query, (store_id,))
+        new_avg_rating = cursor.fetchone()[0]
 
         # # Update the 'rating_num' column in the 'rating' table with the new average
-        # update_rating_num_query = """
-        #     UPDATE rating
-        #     SET rating_num = %s
-        #     WHERE store_id = %s
-        # """
-        # cursor.execute(update_rating_num_query, (new_avg_rating, store_id))
+        update_rating_num_query = """
+            UPDATE rating
+            SET rating_num = %s
+            WHERE store_id = %s
+        """
+        cursor.execute(update_rating_num_query, (new_avg_rating, store_id))
 
         # Commit the changes to the database
         conn.commit()

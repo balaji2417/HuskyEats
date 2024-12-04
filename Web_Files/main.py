@@ -68,6 +68,11 @@ def home_display():
 def delivery_agent_login():
     return render_template('delivery_agent.html')
 
+@app.route('/deliverypage')
+def deliverypage():
+    orders = sq.get_orders_from_database()  # This should return a list of orders from your database
+    return render_template('deliverypage.html', orders=orders)
+
 
 @app.route('/logout')
 def logout():
@@ -158,10 +163,12 @@ def valid_delivery():
         username = request.form['username']
         password = request.form['password']
 
-    isexist = sq.check_delivery(username, password)
+    isexist = sq.check_delivery(username, password)  # Assuming this function checks credentials
     if isexist:
-        return "Hello"
+        # Redirect to the delivery page on successful login
+        return redirect(url_for('deliverypage'))
     else:
+        # Return to the login page with an error message if the credentials are invalid
         return render_template('delivery_agent.html', error="Invalid credentials. Please try again.")
 
 
@@ -228,17 +235,41 @@ def place_order():
         return jsonify({"error": result}), 400  # Return error response
     
 
+@app.route('/assign_order', methods=['POST'])
+def assign_order():
+    try:
+        data = request.get_json()  # Get JSON data from the request body
+        order_id = data.get('order_id')
+        delivery_agent_id = data.get('delivery_agent_id')
+
+        # Validate that both order_id and delivery_agent_id are provided
+        if not order_id or not delivery_agent_id:
+            return jsonify({"error": "order_id and delivery_agent_id are required"}), 400
+
+        # Call the function
+        success = sq.assign_order_to_delivery_agent(order_id, delivery_agent_id)
+
+        if success:
+            return jsonify({"message": "Order assigned successfully"}), 200
+        else:
+            return jsonify({"error": "Failed to assign order"}), 500
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
 @app.route('/submit_rating', methods=['POST'])
 def submit_rating():
     if 'username' not in session:
         flash("You must be logged in to submit a rating", "danger")
         return redirect(url_for('login_home'))  # Redirect to login if the user is not logged in
 
-
+    # Get the form data (store_id, rating_num, and feedback)
     store_id = request.form['store_id']
     rating_num = request.form['rating_num']
     feedback = request.form['feedback']
 
+    # Ensure the rating_num is valid (for example, between 1 and 5)
     try:
         rating_num = float(rating_num)
         if not (1 <= rating_num <= 5):
@@ -258,7 +289,7 @@ def submit_rating():
     flash(result_message, "success")
 
     # Redirect to the relevant page (you can change this to the store page or wherever you want)
-    return redirect(url_for('orders'))
+    return redirect(url_for('home_display'))
 
 
 
