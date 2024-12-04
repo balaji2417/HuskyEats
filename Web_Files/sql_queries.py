@@ -404,24 +404,6 @@ def place_order(username, total_price, delivery_location):
         if not cart_items:
             return "No items in the cart or items have already been ordered."
 
-        # Check if the available quantity in the grocery table is sufficient
-        for item in cart_items:
-            store_id = item[1]
-            item_name = item[2]
-            item_qty = item[3]
-
-            # Query to get the current stock in the grocery table
-            check_grocery_qty_query = """
-                SELECT item_qty
-                FROM grocery
-                WHERE store_id = %s AND item_name = %s
-            """
-            cursor.execute(check_grocery_qty_query, (store_id, item_name))
-            result = cursor.fetchone()
-
-            if result is None or result[0] < item_qty:
-                return f"Insufficient stock for {item_name}. Cannot place the order."
-
         # Update the cart items to mark them as ordered and link them to the new order
         update_cart_query = """
             UPDATE cart
@@ -432,22 +414,11 @@ def place_order(username, total_price, delivery_location):
         # Update each cart item to set 'is_order_placed = 1' and associate with the new order
         for item in cart_items:
             cart_id = item[0]
-            store_id = item[1]
-            item_name = item[2]
-            item_qty = item[3]
 
-            # Reduce the quantity in the grocery table
-            update_grocery_query = """
-                UPDATE grocery
-                SET item_qty = item_qty - %s
-                WHERE store_id = %s AND item_name = %s
-            """
-            cursor.execute(update_grocery_query, (item_qty, store_id, item_name))
-
-            # Now update the cart to mark the item as ordered
+            # Now update the cart to mark the item as ordered and associate with the new order
             cursor.execute(update_cart_query, (order_id, cart_id))
 
-        # Commit the updates to the cart table and grocery table
+        # Commit the updates to the cart table
         conn.commit()
 
         # Send OTP email
@@ -479,7 +450,7 @@ def place_order(username, total_price, delivery_location):
         conn.rollback()  # Rollback in case of any error
         print(f"Error occurred: {str(e)}")
         return f"Failed to place order: {str(e)}"
-    
+
 
 def assign_order_to_delivery_agent(order_id, delivery_agent_id):
     """
