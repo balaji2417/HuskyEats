@@ -28,13 +28,12 @@ def valid_login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        session['username'] = username
         isexist, user_name, categories = sq.check_valid_user(username, password)
         stores, items, prices, images, store_id = sq.get_top_stores()
     
 
         if isexist:
-
+            session['username'] = username
             current_time = datetime.now()
             hour = current_time.hour
             if hour < 12:
@@ -70,8 +69,20 @@ def delivery_agent_login():
 
 @app.route('/deliverypage')
 def deliverypage():
-    orders = sq.get_orders_from_database()  # This should return a list of orders from your database
-    return render_template('deliverypage.html', orders=orders)
+    current_time = datetime.now()
+    hour = current_time.hour
+    user_name = sq.get_Delivery_name(session['delivery_username'])
+    if hour < 12:
+        message = "Good Morning" + " " + user_name
+    elif hour < 16:
+        message = "Good Afternoon" + " " + user_name
+    else:
+
+         message = "Good Evening" + " " + user_name
+
+    session['global_message'] = message
+    orders = sq.get_orders_from_database(session['delivery_username'])  # This should return a list of orders from your database
+    return render_template('deliverypage.html', orders=orders,message = message)
 
 
 @app.route('/logout')
@@ -102,11 +113,10 @@ def food():
 
 @app.route('/orders')
 def orders():
-    order_id, deliveryAgent, status, totalPrice, store_id = sq.get_orders()
-    zipped_data = zip(order_id, deliveryAgent, status, totalPrice,store_id)
+    order_id, deliveryAgent, status, totalPrice= sq.get_orders()
+    zipped_data = zip(order_id, deliveryAgent, status, totalPrice)
     order_data=sq.get_ordered_cart(order_id)
-    print(status)
-    print(order_data)
+
     return render_template('order.html', zipped_data=zipped_data,order_data = order_data, message=session['global_message'])
 
 
@@ -165,7 +175,7 @@ def valid_delivery():
 
     isexist = sq.check_delivery(username, password)  # Assuming this function checks credentials
     if isexist:
-        # Redirect to the delivery page on successful login
+        session['delivery_username'] = username
         return redirect(url_for('deliverypage'))
     else:
         # Return to the login page with an error message if the credentials are invalid
@@ -233,7 +243,31 @@ def place_order():
         return jsonify({"message": "Order placed successfully"}), 200  # Return success response
     else:
         return jsonify({"error": result}), 400  # Return error response
-    
+
+@app.route('/submit_rating', methods=['POST'])
+def submit_rating():
+    print("Inside rating")
+    # Check if the user is logged in (assuming session management)
+    if 'username' not in session:
+        flash('You must be logged in to place an order', 'danger')
+        return redirect(url_for('login'))  # Redirect to login page if not logged in
+
+
+    rating_data = request.get_json()
+    rating = rating_data.get('rating')
+
+    orderId = rating_data.get('orderId')
+    print(orderId);
+    feedback = rating_data.get('feedback')# Access deliveryLocation from the JSON body
+
+    # Call the place_order function from the database handler (sq)
+    result = sq.submit_rating(orderId,rating,feedback,session['username'])
+
+    # Handle the result and provide feedback to the user
+    if 'success' in result.lower():
+        return jsonify({"message": result}), 200  # Return success response
+    else:
+        return jsonify({"error": result}), 400  # Return error response
 
 @app.route('/assign_order', methods=['POST'])
 def assign_order():
@@ -257,39 +291,6 @@ def assign_order():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-
-@app.route('/submit_rating', methods=['POST'])
-def submit_rating():
-    if 'username' not in session:
-        flash("You must be logged in to submit a rating", "danger")
-        return redirect(url_for('login_home'))  # Redirect to login if the user is not logged in
-
-    # Get the form data (store_id, rating_num, and feedback)
-    store_id = request.form['store_id']
-    rating_num = request.form['rating_num']
-    feedback = request.form['feedback']
-
-    # Ensure the rating_num is valid (for example, between 1 and 5)
-    try:
-        rating_num = float(rating_num)
-        if not (1 <= rating_num <= 5):
-            flash("Rating must be between 1 and 5.", "danger")
-            return redirect(url_for('home_display'))  # Redirect to home or the relevant page
-    except ValueError:
-        flash("Invalid rating value. Please provide a number between 1 and 5.", "danger")
-        return redirect(url_for('home_display'))  # Redirect to home or the relevant page
-
-    # Get the username from the session
-    username = session['username']
-
-    # Call the submit_rating function from the sql_queries module
-    result_message = sq.submit_rating(username, store_id, rating_num, feedback)
-
-    # Provide feedback to the user
-    flash(result_message, "success")
-
-    # Redirect to the relevant page (you can change this to the store page or wherever you want)
-    return redirect(url_for('home_display'))
 
 
 

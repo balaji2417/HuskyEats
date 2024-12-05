@@ -60,7 +60,7 @@
       <div class="col-sm">
         <div class="dropdown show">
           <a style="background-color:black; color:white; margin-top:5px; margin-left:200px;" class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Delivery Agent
+            {{message}}
           </a>
 
           <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
@@ -117,10 +117,10 @@
             </div>
           </td>
           <td>
-            <button class="btn btn-primary btn-sm enter-otp-btn" data-toggle="modal" data-target="#otpModal{{ order.order_id }}">Enter OTP</button>
+            <button class="btn btn-primary btn-sm enter-otp-btn" data-toggle="modal" {% if not order.isAssigned %} disabled {% endif %} data-target="#otpModal{{ order.order_id }}">Enter OTP</button>
           </td>
           <td>
-            <button class="btn btn-success btn-sm accept-btn">Accept</button>
+            <button class="btn btn-success btn-sm accept-btn" {% if order.isAssigned %} disabled {% endif %}>Accept</button>
           </td>
           <td>
             <span class="status">Pending</span>
@@ -134,15 +134,14 @@
   <script>
     $(document).ready(function () {
       // Disable buttons initially
-      $('.view-items-btn').prop('disabled', true);
-      $('.enter-otp-btn').prop('disabled', true);
+     
 
       // Enable buttons when the Accept button is clicked
       $('.accept-btn').click(function () {
         const row = $(this).closest('tr');
         const orderId = row.find('td:first').text();  // Get the order ID
         const deliveryAgentId = 'DA001'
-
+        
         // Make AJAX call to assign the order
         $.ajax({
           url: '/assign_order',
