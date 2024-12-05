@@ -458,11 +458,8 @@ def place_order(username, total_price, delivery_location):
             item_qty = item[3]
 
             # If the store is a grocery, check the stock availability of the particular item
-            if is_grocery_item(store_id, item_name):
-                continue  # Check if it's a grocery item
-            else:
-                print("LOL")
-                return f"Insufficient for item {item_name}, Qty : {item_qty}"
+            if not is_grocery_item(store_id, item_name):
+                return f"Insufficient stock of {item_name}, qty: {item_qty}"
                     
         # Step 2: Now that all stock checks passed, insert the order into the 'orders' table
         otp = random.randint(1000, 9999)
