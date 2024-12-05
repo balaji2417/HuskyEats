@@ -11,7 +11,7 @@ from mysql.connector import Error
 conn = mysql.connector.connect(
     host="localhost",  # Change to your host, e.g., "127.0.0.1" or "your_host"
     user="root",  # Replace with your MySQL username
-    password="root",  # Replace with your MySQL password
+    password="UshaUV1!",  # Replace with your MySQL password
     database="husky_eats"  # Replace with the database name
 )
 conn.commit()
@@ -457,9 +457,10 @@ def place_order(username, total_price, delivery_location):
             item_name = item[2]
             item_qty = item[3]
 
-            # If the store is a grocery, check the stock availability of the particular item
-            if not is_grocery_item(store_id, item_name):
-                return f"Insufficient stock of {item_name}, qty: {item_qty}"
+            if is_grocery_item(store_id, item_name):
+                available_qty = get_grocery_stock(store_id, item_name)
+                if available_qty < item_qty:
+                    return f"Insufficient stock for item: {item_name} at store {store_id}. Available stock: {available_qty}, Requested: {item_qty}"
                     
         # Step 2: Now that all stock checks passed, insert the order into the 'orders' table
         otp = random.randint(1000, 9999)
@@ -526,7 +527,7 @@ def place_order(username, total_price, delivery_location):
         server.quit()
 
         # Return success message with OTP
-        return f"Order placed! Your OTP is {otp}"
+        return f"Order placed successfully!"
 
     except Error as e:
         conn.rollback()  # Rollback in case of any error
@@ -535,18 +536,44 @@ def place_order(username, total_price, delivery_location):
     finally:
         cursor.close()
 
+
 def is_grocery_item(store_id, item_name):
     cursor = conn.cursor()
-    # Query to check if the item exists in the grocery table with a quantity greater than 0
+    
+    # Query to check if the item exists in the grocery table
     query = """
         SELECT COUNT(*) 
         FROM grocery 
-        WHERE store_id = %s AND item_name = %s AND item_qty > 0
+        WHERE store_id = %s AND item_name = %s
     """
+    
     cursor.execute(query, (store_id, item_name))
     result = cursor.fetchone()
+    
     cursor.close()
+    
+    # If count is greater than 0, the item exists in the grocery table
     return result[0] > 0
+
+def get_grocery_stock(store_id, item_name):
+    cursor = conn.cursor()
+    
+    # Query to get the stock quantity of the item in the grocery store
+    query = """
+        SELECT item_qty
+        FROM grocery
+        WHERE store_id = %s AND item_name = %s
+    """
+    
+    cursor.execute(query, (store_id, item_name))
+    result = cursor.fetchone()
+    
+    cursor.close()
+
+    if result:
+        return result[0]  # Return the available stock quantity
+    return 0  # Return 0 if the item does not exist in the grocery store
+
 
 
 def assign_order_to_delivery_agent(order_id, delivery_agent_id):
