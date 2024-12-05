@@ -244,7 +244,7 @@
   if (!response.ok) {
     // Handle error response (e.g., 400, 500, etc.)
  return response.json().then(errorData => {
-      throw new Error(errorData.error || 'An unknown error occurred');
+      throw new Error(errorData.error);
     });
   }
   return response.json();

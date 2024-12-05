@@ -252,12 +252,15 @@ def place_order():
 
     # If there is an error in the result (such as insufficient stock), handle it here
     if 'insufficient' in result.lower():
-
+        print('insufficient')
+        print(result)
         return jsonify({"error": result}), 400  # Return error message with 400 status code
     # Handle the result and provide feedback to the user
     elif 'success' in result.lower():
-        return jsonify({"message": "Order placed successfully"}), 200  # Return success response
+        print('success')
+        return jsonify({"message": "Order placed!"}), 200  # Return success response
     else:
+        print("LOL")
         return jsonify({"error": result}), 400  # Return error response
 
 
