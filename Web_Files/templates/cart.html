@@ -240,13 +240,22 @@
         },
         body: JSON.stringify(orderData),
       })
-      .then(response => response.json())
+      .then(response => {
+  if (!response.ok) {
+    // Handle error response (e.g., 400, 500, etc.)
+ return response.json().then(errorData => {
+      throw new Error(errorData.error || 'An unknown error occurred');
+    });
+  }
+  return response.json();
+})
       .then(data => {
         alert('Order placed successfully');
         window.location.href = '/orders';
       })
       .catch(error => {
-        console.error('Error placing order:', error);
+      
+		 alert(`Error: ${error.message}`);
       });
     });
   </script>

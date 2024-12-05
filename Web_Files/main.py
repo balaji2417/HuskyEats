@@ -252,6 +252,7 @@ def place_order():
 
     # If there is an error in the result (such as insufficient stock), handle it here
     if 'insufficient' in result.lower():
+
         return jsonify({"error": result}), 400  # Return error message with 400 status code
     # Handle the result and provide feedback to the user
     elif 'success' in result.lower():
