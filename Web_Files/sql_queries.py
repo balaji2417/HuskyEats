@@ -11,7 +11,7 @@ from mysql.connector import Error
 conn = mysql.connector.connect(
     host="localhost",  # Change to your host, e.g., "127.0.0.1" or "your_host"
     user="root",  # Replace with your MySQL username
-    password="root",  # Replace with your MySQL password
+    password="Sqlafrah@123",  # Replace with your MySQL password
     database="husky_eats"  # Replace with the database name
 )
 conn.commit()
@@ -461,7 +461,6 @@ def place_order(username, total_price, delivery_location):
             if is_grocery_item(store_id, item_name):
                 continue  # Check if it's a grocery item
             else:
-                print("LOL")
                 return f"Insufficient for item {item_name}, Qty : {item_qty}"
                     
         # Step 2: Now that all stock checks passed, insert the order into the 'orders' table

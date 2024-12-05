@@ -209,7 +209,6 @@ document.querySelectorAll('.view-items-btn').forEach(button => {
         var orderId = (this).getAttribute('data-order_id');  // Get the order ID
 		
         const deliveryAgentId = "{{delivery_id}}";
-        alert(deliveryAgentId);
         // Make AJAX call to assign the order
         $.ajax({
           url: '/assign_order',
