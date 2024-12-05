@@ -231,7 +231,6 @@ def update_cart():
     # Redirect back to the cart page
     return redirect(url_for('cart'))
 
-
 @app.route('/place_order', methods=['POST'])
 def place_order():
     # Check if the user is logged in (assuming session management)
@@ -251,11 +250,15 @@ def place_order():
     # Call the place_order function from the database handler (sq)
     result = sq.place_order(session['username'], total_price, delivery_location)
 
+    # If there is an error in the result (such as insufficient stock), handle it here
+    if 'insufficient' in result.lower():
+        return jsonify({"error": result}), 400  # Return error message with 400 status code
     # Handle the result and provide feedback to the user
-    if 'success' in result.lower():
+    elif 'success' in result.lower():
         return jsonify({"message": "Order placed successfully"}), 200  # Return success response
     else:
         return jsonify({"error": result}), 400  # Return error response
+
 
 @app.route('/submit_rating', methods=['POST'])
 def submit_rating():

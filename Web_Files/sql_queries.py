@@ -11,7 +11,7 @@ from mysql.connector import Error
 conn = mysql.connector.connect(
     host="localhost",  # Change to your host, e.g., "127.0.0.1" or "your_host"
     user="root",  # Replace with your MySQL username
-    password="root",  # Replace with your MySQL password
+    password="UshaUV1!",  # Replace with your MySQL password
     database="husky_eats"  # Replace with the database name
 )
 conn.commit()
@@ -439,22 +439,6 @@ def place_order(username, total_price, delivery_location):
     cursor = conn.cursor()
 
     try:
-        # Generate OTP for the order (6-digit)
-        otp = random.randint(1000, 9999)
-
-        # Insert a new order into the 'orders' table
-        insert_order_query = """
-            INSERT INTO orders (username, Total_amount, delivery_location, iaAssigned, isDelivered, OTP)
-            VALUES (%s, %s, %s, 0, 0, %s)
-        """
-        cursor.execute(insert_order_query, (username, total_price, delivery_location, otp))
-
-        # Commit the transaction to save the order in the database
-        conn.commit()
-
-        # Get the order_id of the newly created order
-        order_id = cursor.lastrowid
-
         # Retrieve cart items for the user (items that are not yet placed in an order)
         get_cart_items_query = """
             SELECT cart_id, store_id, items_name, items_qty, items_price
@@ -467,21 +451,59 @@ def place_order(username, total_price, delivery_location):
         if not cart_items:
             return "No items in the cart or items have already been ordered."
 
-        # Update the cart items to mark them as ordered and link them to the new order
+        # Step 1: Check stock for each item (before inserting the order)
+        for item in cart_items:
+            store_id = item[1]
+            item_name = item[2]
+            item_qty = item[3]
+
+            # If the store is a grocery, check the stock availability of the particular item
+            if is_grocery_item(store_id, item_name):
+                continue  # Check if it's a grocery item
+            else:
+                print("LOL")
+                return "Insufficient"
+                    
+        # Step 2: Now that all stock checks passed, insert the order into the 'orders' table
+        otp = random.randint(1000, 9999)
+        insert_order_query = """
+            INSERT INTO orders (username, Total_amount, delivery_location, iaAssigned, isDelivered, OTP)
+            VALUES (%s, %s, %s, 0, 0, %s)
+        """
+        cursor.execute(insert_order_query, (username, total_price, delivery_location, otp))
+
+        # Commit the transaction to save the order in the database
+        conn.commit()
+
+        # Get the order_id of the newly created order
+        order_id = cursor.lastrowid
+
+        # Step 3: Update the cart and grocery stock
         update_cart_query = """
             UPDATE cart
             SET is_order_placed = 1, order_id = %s
             WHERE cart_id = %s
         """
-
-        # Update each cart item to set 'is_order_placed = 1' and associate with the new order
         for item in cart_items:
             cart_id = item[0]
+            store_id = item[1]
+            item_name = item[2]
+            item_qty = item[3]
 
-            # Now update the cart to mark the item as ordered and associate with the new order
+            # Update the cart to mark the item as ordered and associate with the new order
             cursor.execute(update_cart_query, (order_id, cart_id))
 
-        # Commit the updates to the cart table
+            # If the store is a grocery, reduce the quantity in the grocery table
+            if is_grocery_item(store_id, item_name):  # Check if it's a grocery item
+                # Reduce the quantity in the grocery table
+                reduce_grocery_qty_query = """
+                    UPDATE grocery
+                    SET item_qty = item_qty - %s
+                    WHERE store_id = %s AND item_name = %s
+                """
+                cursor.execute(reduce_grocery_qty_query, (item_qty, store_id, item_name))
+
+        # Commit the updates to the cart and grocery table
         conn.commit()
 
         # Send OTP email
@@ -507,13 +529,28 @@ def place_order(username, total_price, delivery_location):
         server.quit()
 
         # Return success message with OTP
-        return f"Order placed successfully! Your OTP is {otp}"
+        return f"Order placed! Your OTP is {otp}"
 
     except Error as e:
         conn.rollback()  # Rollback in case of any error
         print(f"Error occurred: {str(e)}")
         return f"Failed to place order: {str(e)}"
+    finally:
+        cursor.close()
+
+def is_grocery_item(store_id, item_name):
+    cursor = conn.cursor()
+    # Query to check if the item exists in the grocery table with a quantity greater than 0
+    query = """
+        SELECT COUNT(*) 
+        FROM grocery 
+        WHERE store_id = %s AND item_name = %s AND item_qty > 0
+    """
+    cursor.execute(query, (store_id, item_name))
+    result = cursor.fetchone()
     cursor.close()
+    return result[0] > 0
+
 
 def assign_order_to_delivery_agent(order_id, delivery_agent_id):
     """
