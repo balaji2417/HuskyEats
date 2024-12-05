@@ -36,6 +36,7 @@ def get_ordered_cart(order_ids):
             items.append("$" + str(row[5] * row[4]))
             sub_orders.append(items)
         order_data.append(sub_orders)
+
     return order_data
 
 
@@ -47,19 +48,20 @@ def get_building():
     building = []
     for row in rows:
         building.append(row[0])
+    cursor.close()
     return building
 
 
-def get_orders():
-    conn.commit()
+def get_orders(username):
+
     cursor = conn.cursor()
 
     # Updated query to join 'orders' with 'cart' using 'order_id' and select 'store_id' from 'cart'
     query = """
         SELECT order_id, Delivery_agent_id, Total_amount, iaAssigned, isDelivered
-        FROM orders 
+        FROM orders where username = %s
     """
-    cursor.execute(query)
+    cursor.execute(query,(username,))
     rows = cursor.fetchall()
 
     order_id = []
@@ -91,6 +93,7 @@ def get_orders():
         # Append store_id (from cart)
 
     # Return all lists, including store_id
+    cursor.close()
     return order_id, deliveryAgent, status, totalPrice
 
 
@@ -102,6 +105,7 @@ def get_Delivery_name(username):
     user_name = ""
     for row in rows:
         user_name = row[0]
+    cursor.close()
     return user_name
 
 
@@ -136,7 +140,42 @@ def get_orders_from_database(user_name):
         })
 
     print(orders)
+    cursor.close()
     return orders
+
+
+def get_stores(orders):
+    cur = conn.cursor()
+    order_ids = []
+    for order_dict in orders:
+        order_ids.append(order_dict.get('order_id'))
+    order_data = []
+    for order_id in order_ids:
+        sub_orders = []
+        sub_orders.append(order_id)
+        if (order_id is None):
+            continue
+        cursor = conn.cursor()
+        query = "Select * from cart where order_id = %s"
+        cursor.execute(query, (order_id,))
+        rows = cursor.fetchall()
+        for row in rows:
+            items = []
+            items.append(row[3])
+            items.append(row[5])
+            items.append("$" + str(row[4]))
+            items.append("$" + str(row[5] * row[4]))
+            cursor.execute("SELECT * FROM STORE where store_id = %s",(row[2],))
+            rows_store = cursor.fetchone()
+            items.append(rows_store[1])
+            cursor.execute("SELECT * FROM BUILDING where building_id = %s",(rows_store[4],))
+            rows_building = cursor.fetchone()
+            items.append(rows_building[1])
+
+            sub_orders.append(items)
+        order_data.append(sub_orders)
+
+    return order_data
 
 
 def get_images():
@@ -154,7 +193,7 @@ def get_images():
             continue
         base64_image = base64.b64encode(row[0]).decode('utf-8')
         images.append(base64_image)
-
+    cursor.close()
     return images
 
 
@@ -168,7 +207,7 @@ def check_delivery(username, password):
         print(row[0])
         if row[0] == password:
             flag = True
-
+    cursor.close()
     return flag
 
 
@@ -195,7 +234,7 @@ def check_valid_user(username, password):
         rows = result.fetchall()
         for row in rows:
             category.append(row[0])
-
+    cursor.close()
     return flag, user_full_name, category
 
 
@@ -232,7 +271,7 @@ def checkValidEntry(username, password, id, selected_value):
         query = "SELECT * from neu_employee where faculty_id = %s"
         cursor.execute(query, (id,))
         row = cursor.fetchall()
-        if len(row) < 0:
+        if len(row) <= 0:
             return False, "Reference Faculty does not exist"
         else:
             flag = False
@@ -259,6 +298,7 @@ def getCategory():
         category = []
         for row in rows:
             category.append(row[0])
+    cursor.close()
     return category
 
 
@@ -270,6 +310,7 @@ def get_grocery_category_list():
         category = []
         for row in rows:
             category.append(row[0])
+    cursor.close()
     return category
 
 
@@ -290,6 +331,7 @@ def get_top_stores():
             base64_image = base64.b64encode(row[3]).decode('utf-8')
             images.append(base64_image)
             store_id.append(row[4])
+    cursor.close()
     return stores, items, prices, images, store_id
 
 
@@ -310,6 +352,7 @@ def get_menu_category(category_name):
             base64_image = base64.b64encode(row[3]).decode('utf-8')
             images.append(base64_image)
             store_id.append(row[4])
+    cursor.close()
     return stores, items, prices, images, store_id
 
 
@@ -330,12 +373,13 @@ def get_grocery_category(category_name):
             base64_image = base64.b64encode(row[3]).decode('utf-8')
             images.append(base64_image)
             store_id.append(row[4])
+    cursor.close()
     return stores, items, prices, images, store_id
 
 
 def updateCart(username, item, qty, price, store_id):
     cursor = conn.cursor()
-    query = "SELECT cart_id from cart where username = %s AND items_name = %s AND store_id = %s"
+    query = "SELECT cart_id from cart where username = %s AND items_name = %s AND store_id = %s AND is_order_placed = 0"
     cursor.execute(query, (username, item, store_id))
     rows = cursor.fetchone()
     cart_id = 0
@@ -344,15 +388,17 @@ def updateCart(username, item, qty, price, store_id):
             cart_id = row
     price_new = price.split("$")
     price = float(price_new[1])
-    cursor.callproc('update_cart', [username, store_id, item, cart_id, price, qty])
+    cursor.close()
+    cursor1 = conn.cursor()
+    cursor1.callproc('update_cart', [username, store_id, item, cart_id, price, qty])
     conn.commit()
-
+    cursor.close()
 
 def updateItemQuantityInCart(username, item, store_id, qty_change):
     cursor = conn.cursor()
 
     # Select cart_id and current quantity from the cart
-    query = "SELECT cart_id, items_qty FROM cart WHERE username = %s AND items_name = %s AND store_id = %s"
+    query = "SELECT cart_id, items_qty FROM cart WHERE username = %s AND items_name = %s AND store_id = %s AND is_order_placed = 0"
     cursor.execute(query, (username, item, store_id))
     rows = cursor.fetchone()
     if rows is not None:
@@ -370,7 +416,7 @@ def updateItemQuantityInCart(username, item, store_id, qty_change):
             conn.commit()
     else:
         print(f"Item {item} not found in the cart.")
-
+    cursor.close()
 
 def deleteItemFromCart(username, item, store_id):
     cursor = conn.cursor()
@@ -387,7 +433,7 @@ def deleteItemFromCart(username, item, store_id):
         print(f"Item {item} removed from the cart.")
     else:
         print(f"Item {item} not found in the cart.")
-
+    cursor.close()
 
 def place_order(username, total_price, delivery_location):
     cursor = conn.cursor()
@@ -467,7 +513,7 @@ def place_order(username, total_price, delivery_location):
         conn.rollback()  # Rollback in case of any error
         print(f"Error occurred: {str(e)}")
         return f"Failed to place order: {str(e)}"
-
+    cursor.close()
 
 def assign_order_to_delivery_agent(order_id, delivery_agent_id):
     """
@@ -500,6 +546,42 @@ def assign_order_to_delivery_agent(order_id, delivery_agent_id):
         conn.rollback()  # Rollback in case of error
         print(f"Error assigning order: {e}")
         return False
+    cursor.close()
+
+def verify_OTP(order_id, otp_value):
+
+    try:
+        # Create a cursor object to interact with the database
+        cursor = conn.cursor()
+
+        # Query to update the order with the delivery agent ID and set iaAssigned to 1
+        query = """
+        SELECT OTP FROM ORDERS
+        WHERE order_id = %s 
+        """
+        cursor.execute(query, ( order_id,))
+        rows = cursor.fetchone()
+        print("Type : ",order_id)
+        otp_value = int(otp_value)
+        if(otp_value == rows[0]):
+            query = "UPDATE ORDERS set isDelivered = 1 where order_id = %s"
+            cursor.execute(query,(order_id,))
+            conn.commit()
+            return True
+
+
+        conn.commit()
+        return False
+
+
+
+
+    except Exception as e:
+        # Handle any errors (e.g., database connection issues)
+        conn.rollback()  # Rollback in case of error
+        print(f"Error : Invalid OTP: {e}")
+        return False
+    cursor.close()
 
 
 def submit_rating(orderId, rating, feedback, username):
@@ -545,7 +627,7 @@ def submit_rating(orderId, rating, feedback, username):
         conn.rollback()  # Rollback in case of an error
         print(f"Error occurred: {str(e)}")
         return f"Failed to submit review: {str(e)}"
-
+    cursor.close()
 
 def get_cart(username):
     cursor = conn.cursor()
@@ -564,4 +646,5 @@ def get_cart(username):
         price.append("$" + str(row[4]))
         qty.append(row[5])
         total = total + (row[4] * row[5])
+    cursor.close()
     return store_id, item, price, total, qty

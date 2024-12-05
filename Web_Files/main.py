@@ -80,9 +80,12 @@ def deliverypage():
 
          message = "Good Evening" + " " + user_name
 
-    session['global_message'] = message
-    orders = sq.get_orders_from_database(session['delivery_username'])  # This should return a list of orders from your database
-    return render_template('deliverypage.html', orders=orders,message = message)
+    session['global_message_delivery'] = message
+    orders = sq.get_orders_from_database(session['delivery_username']) # This should return a list of orders from your database
+    stores = sq.get_stores(orders)
+    return render_template('deliverypage.html', ordered_data = stores, orders=orders,message = message,delivery_id = session['delivery_username'])
+
+
 
 
 @app.route('/logout')
@@ -90,6 +93,13 @@ def logout():
     session.pop('global_message')
     session.pop('username')
     return redirect(url_for('login_home'))
+
+@app.route('/logout_delivery')
+def logout_delivery():
+    session.pop('global_message_delivery')
+    session.pop('delivery_username')
+    return redirect(url_for('login_home'))
+
 
 
 @app.route('/signup')
@@ -113,8 +123,9 @@ def food():
 
 @app.route('/orders')
 def orders():
-    order_id, deliveryAgent, status, totalPrice= sq.get_orders()
+    order_id, deliveryAgent, status, totalPrice= sq.get_orders(session['username'])
     zipped_data = zip(order_id, deliveryAgent, status, totalPrice)
+    print("Username : ",session['username'])
     order_data=sq.get_ordered_cart(order_id)
 
     return render_template('order.html', zipped_data=zipped_data,order_data = order_data, message=session['global_message'])
@@ -155,7 +166,9 @@ def signup_user():
         regexp_pw = "[A-Z]+[a-z]+[0-9]*_*"
         if not (re.search(regexp_un, username)) or len(username) < 8 or len(username) > 15 or len(
                 password) > 15 or not (re.search(regexp_pw, password)) or len(username) < 8:
-            return render_template('signup.html', error="Incorrect Username and password combination")
+            error = "Password and username should be in the range 8 -15 digits and underscore atleast one caps must for password."
+            return render_template('signup.html', error=error)
+
         selected_value = request.form.get('userType')
         bool_check, message = sq.checkValidEntry(username, password, refId, selected_value)
         if bool_check:
@@ -246,7 +259,7 @@ def place_order():
 
 @app.route('/submit_rating', methods=['POST'])
 def submit_rating():
-    print("Inside rating")
+
     # Check if the user is logged in (assuming session management)
     if 'username' not in session:
         flash('You must be logged in to place an order', 'danger')
@@ -257,7 +270,7 @@ def submit_rating():
     rating = rating_data.get('rating')
 
     orderId = rating_data.get('orderId')
-    print(orderId);
+
     feedback = rating_data.get('feedback')# Access deliveryLocation from the JSON body
 
     # Call the place_order function from the database handler (sq)
@@ -275,7 +288,7 @@ def assign_order():
         data = request.get_json()  # Get JSON data from the request body
         order_id = data.get('order_id')
         delivery_agent_id = data.get('delivery_agent_id')
-
+        print("Delivery Id is : ",delivery_agent_id)
         # Validate that both order_id and delivery_agent_id are provided
         if not order_id or not delivery_agent_id:
             return jsonify({"error": "order_id and delivery_agent_id are required"}), 400
@@ -291,7 +304,26 @@ def assign_order():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+@app.route('/check_OTP', methods=['POST'])
+def check_OTP():
+    try:
+        data = request.get_json()  # Get JSON data from the request body
+        order_id = data.get('orderId')
+        otp_value = data.get('otpValue')
+        # Validate that both order_id and delivery_agent_id are provided
+        if not order_id or not otp_value:
+            return jsonify({"error": "Empty OTP"}), 400
 
+        # Call the function
+        success = sq.verify_OTP(order_id, otp_value)
+
+        if success:
+            return jsonify({"message": "Order Delivered successfully"}), 200
+        else:
+            return jsonify({"error": "Invalid OTP"}), 500
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # main driver function

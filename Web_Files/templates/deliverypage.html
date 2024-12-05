@@ -12,6 +12,11 @@
       background-color: floralwhite;
       background-size: cover;
     }
+	 img {
+      border-radius: 50%; /* Circular effect */
+      max-width: 100px; /* Adjust image size */
+      max-height: 100px;
+    }
 
     #top-bar {
       background-color: black;
@@ -52,7 +57,7 @@
   <div class="container-fluid" id="top-bar">
     <div class="row">
       <div class="col-sm text-center">
-        <img src="husky.png" alt="Husky Logo" style="width: 50px;">
+        <img src="{{ url_for('static', filename='husky.png') }}" alt="Husky Logo">
       </div>
       <div class="col-sm text-center">
         <h1 class="Name">Husky Eats</h1>
@@ -64,7 +69,7 @@
           </a>
 
           <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-            <a class="dropdown-item" href="#">Logout</a>
+            <a class="dropdown-item" href="{{ url_for('logout_delivery') }}">Logout</a>
           </div>
         </div>
       </div>
@@ -92,10 +97,10 @@
           <td>{{ order.order_id }}</td>
           <td>{{ order.delivery_location }}</td>
           <td>
-            <button class="btn btn-info btn-sm view-items-btn" data-toggle="modal" data-target="#viewItemsModal{{ order.order_id }}">View Items</button>
+            <button class="btn btn-info btn-sm view-items-btn" data-toggle="modal" data-order-id="{{ order.order_id }}" data-target="#viewItemsModal">View Items</button>
       
             <!-- Modal for Viewing Items -->
-            <div class="modal fade" id="viewItemsModal{{ order.order_id }}" tabindex="-1" role="dialog" aria-labelledby="viewItemsLabel{{ order.order_id }}" aria-hidden="true">
+            <div class="modal fade" id="viewItemsModal" tabindex="-1" role="dialog" aria-labelledby="viewItemsLabel{{ order.order_id }}" aria-hidden="true">
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
@@ -105,7 +110,7 @@
                     </button>
                   </div>
                   <div class="modal-body">
-                    <ul>
+                    <ul id="items-list" class="list-group">
                       <!-- Items would be displayed here -->
                     </ul>
                   </div>
@@ -116,14 +121,43 @@
               </div>
             </div>
           </td>
-          <td>
-            <button class="btn btn-primary btn-sm enter-otp-btn" data-toggle="modal" {% if not order.isAssigned %} disabled {% endif %} data-target="#otpModal{{ order.order_id }}">Enter OTP</button>
+         <td>
+            <button class="btn btn-primary btn-sm enter-otp-btn"  data-toggle="modal" data-target="#{{order.order_id}}" {% if not order.isAssigned %} disabled {% endif %}>Enter OTP</button>
+
+            <!-- Modal for OTP -->
+            <div class="modal fade" id="{{order.order_id}}" tabindex="-1" role="dialog" aria-labelledby="otpLabel101" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="otpLabel101">Enter OTP</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <form class="otp-form">
+                    <div class="modal-body">
+                      <input type="hidden" name="order_id" value="101">
+                      <input type="text" name="otp" class="form-control otp-input"  placeholder="Enter OTP" required>
+					 
+                    </div>
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-primary" id = "{{order.order_id}}" data-order_id = "{{order.order_id}}" >Submit</button>
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
           </td>
           <td>
-            <button class="btn btn-success btn-sm accept-btn" {% if order.isAssigned %} disabled {% endif %}>Accept</button>
+            <button class="btn btn-success btn-sm accept-btn" data-order_id = "{{order.order_id}}" {% if order.isAssigned %} disabled {% endif %}>Accept</button>
           </td>
           <td>
-            <span class="status">Pending</span>
+            {% if order.isAssigned %}
+        <span class="status" style="color: green; font-weight: bold;">Assigned</span>
+    {% else %}
+        <span class="status">Pending</span>
+    {% endif %}
           </td>
         </tr>
         {% endfor %}
@@ -134,14 +168,48 @@
   <script>
     $(document).ready(function () {
       // Disable buttons initially
-     
+     const orderData = {{ ordered_data | tojson }};
+	 
+	 // View button is clicked
+document.querySelectorAll('.view-items-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      // Get the selected order ID from the data attribute
+      const orderId = this.getAttribute('data-order-id');
+      
+      // Find the order data for the clicked order_id
 
+	  const orderItems = orderData.find(order => order[0] === parseInt(orderId));
+
+
+
+      if (orderItems) {
+        // Get the items from the order
+        const itemsList = document.getElementById('items-list');
+        itemsList.innerHTML = ''; // Clear any existing content
+
+        orderItems.slice(1).forEach(item => {
+          const listItem = document.createElement('li');
+          listItem.classList.add('list-group-item');
+          listItem.innerHTML = `
+            <strong>${item[0]}</strong><br>
+            Quantity: ${item[1]} <br>
+            Price: ${item[2]} <br>
+            Total: ${item[3]} <br>
+			Store: ${item[4]} <br>
+			Building: ${item[5]} <br> 
+          `;
+          itemsList.appendChild(listItem);
+        });
+      }
+    });
+  });
       // Enable buttons when the Accept button is clicked
       $('.accept-btn').click(function () {
         const row = $(this).closest('tr');
-        const orderId = row.find('td:first').text();  // Get the order ID
-        const deliveryAgentId = 'DA001'
-        
+        var orderId = (this).getAttribute('data-order_id');  // Get the order ID
+		
+        const deliveryAgentId = "{{delivery_id}}";
+        alert(deliveryAgentId);
         // Make AJAX call to assign the order
         $.ajax({
           url: '/assign_order',
@@ -156,7 +224,8 @@
               // Update the UI when the order is successfully assigned
               row.find('.view-items-btn').prop('disabled', false).removeClass('btn-disabled');
               row.find('.enter-otp-btn').prop('disabled', false).removeClass('btn-disabled');
-              $(this).prop('disabled', true).addClass('btn-disabled');
+			  row.find('.accept-btn').prop('disabled', true).addClass('btn-disabled');
+              
               row.find('.status').text('Assigned').addClass('delivered'); // Update status
             }
           },
@@ -165,13 +234,49 @@
           }
         });
       });
-
+     
       // Handle OTP submission
       $('.otp-form').submit(function (event) {
         event.preventDefault(); // Prevent actual form submission
         const row = $(this).closest('tr');
+		
+        var buttons = document.querySelectorAll('.otp-form .btn-primary');
+        
+    // Attach event listeners to each button
+    var button = $(this).find('button[type="submit"]');
+
+        // Get the 'id' of the clicked button
+        var buttonId = button.attr('id');
+        console.log("Clicked Button ID:", buttonId);  // Logs the button's ID
+
+        // You can also get the data-order_id attribute if needed
+        var orderId = button.data('order_id');
+        console.log("Order ID:", orderId);
         const statusCell = row.find('.status');
-        statusCell.html('<span class="delivered">Order Delivered Successfully </span>');
+		 var otpValue = $(this).find('input[name="otp"]').val();
+		
+		        $.ajax({
+          url: '/check_OTP',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({
+            otpValue: otpValue,
+             orderId:orderId
+          }),
+          success: function(response) {
+            if (response.message === "Order Delivered successfully") {
+              // Update the UI when the order is successfully assigned
+              row.find('.view-items-btn').prop('disabled', true).addClass('btn-disabled');
+              row.find('.enter-otp-btn').prop('disabled', true).addClass('btn-disabled');
+			  row.find('.accept-btn').prop('disabled', true).addClass('btn-disabled');
+             statusCell.html('<span class="delivered">Order Delivered </span>');
+            }
+          },
+          error: function(error) {
+            alert("Error: invalid otp",error);
+          }
+        });
+       
         $(this).closest('.modal').modal('hide'); // Close the modal
       });
     });

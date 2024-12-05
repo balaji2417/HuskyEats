@@ -101,7 +101,7 @@
           {{message}}
         </a>
 		  <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-    <a class="dropdown-item" href="#">Cart</a>
+    <a class="dropdown-item" href="{{url_for('cart')}}">Cart</a>
     <a class="dropdown-item" href="{{url_for('home_display')}}">Home</a>
 
     <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
@@ -117,6 +117,7 @@
 
   <!-- Order Details -->
   <div id="order-container">
+  {% if zipped_data %}
   {% for order_id, deliveryAgent, status, totalPrice in zipped_data %}
      <h5>Order ID: {{order_id}}</h5>
         <p>Delivery Agent: {{deliveryAgent}}</p>
@@ -131,7 +132,12 @@
           Review
         </button>
 		<br> </br>
+		
 	{% endfor %}
+	{% else %}
+  <p>Sorry, no orders</p>
+{% endif %}
+
   </div>
 </div>
 
@@ -200,7 +206,7 @@
     button.addEventListener('click', function() {
       // Get the selected order ID from the data attribute
       const orderId = this.getAttribute('data-order-id');
-      orderIDG = parseInt(orderId);
+      
       // Find the order data for the clicked order_id
 
 	  const orderItems = orderData.find(order => order[0] === parseInt(orderId));
@@ -263,7 +269,7 @@
   const reviewModal = new bootstrap.Modal(document.getElementById('reviewModal'));
   reviewModal.hide();
  
- alert(currentOrderId);
+
  const orderData = {
   rating: rating,
   orderId: currentOrderId,
@@ -284,7 +290,7 @@ fetch('{{ url_for("submit_rating") }}', {
   return response.json(); // Parse JSON data from the response
 })
 .then(data => {
-  alert('Order placed successfully');
+  alert('Rating submitted successfully');
   window.location.href = '/orders'; // Redirect to orders page after success
 })
 .catch(error => {
